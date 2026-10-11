@@ -53,7 +53,7 @@ Anmeldeweg **Yes** → **Copy & Continue**; den Gerätecode mit dem Trainingskon
    vorhandenes **Model Deployment** `training-chat` → **Create**. Kein neues Modell anlegen.
 4. Den erzeugten Ordner mit `azure.yaml` als Workspace offen lassen. Der Basic-Responses-Agent liegt in
    `src/agent-framework-agent-basic-responses/main.py`; Die lokale `.env` liegt daneben. Der Katalog kann
-   `pyproject.toml`, `uv.lock` und `uv.toml` erzeugen; diese Dateien bleiben erhalten.
+   `pyproject.toml`, `uv.lock` und `uv.toml` erzeugen.
    Falls der Katalog den Namen verändert: die genaue Quellmappe steht bei `services → … → project` in `azure.yaml`.
 5. Übernimm in der **generierten Quellmappe** unseren getesteten Paketstand aus
    [`requirements.txt`](requirements.txt). uv aktualisiert die Abhängigkeiten und Lockdatei
@@ -64,7 +64,6 @@ Anmeldeweg **Yes** → **Copy & Continue**; den Gerätecode mit dem Trainingskon
    ```
 
    Der relative Pfad gilt für `01-hello-world/src/agent-framework-agent-basic-responses`.
-   Die generierten `.vscode`-Dateien und `main.py` bleiben erhalten.
 6. **Python: Select Interpreter** → **Enter interpreter path** → die neue
    `<Repository-Hauptordner>/01-hello-world/src/agent-framework-agent-basic-responses/.venv/bin/python`.
    Im Codespace beginnt der Pfad mit `/workspaces/kuenz-maf-training/`.
