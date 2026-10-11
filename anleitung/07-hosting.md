@@ -1,45 +1,30 @@
-# 07 · Der Prüfworkflow als Hosted Agent
+# Ü13 · Das Projekt als Hosted Agent bereitstellen
 
-Der Prüfworkflow aus 05 läuft bisher lokal hinter `main.py`. Jetzt stellst du denselben Code
-über **Foundry Toolkit → Code → Remote** in Foundry bereit. Deployment und Playground übernimmt VS Code.
+Dein Prüfworkflow läuft bisher lokal hinter `main.py`. Jetzt stellst du genau dieses Projekt
+über **Foundry Toolkit → Deploy to Microsoft Foundry** in Foundry bereit. Deployment und Playground übernimmt VS Code.
 
-**Ausgangspunkt:** fertiger Workflow aus 05 samt `main.py`, im Checkpoint07 vorbereitet.
+**Ausgangspunkt:** dein Projekt nach Ü11 B (mit oder ohne Ü12).
 
-## Schritt 1 · Lokal prüfen
+## Schritt 1 · Lokal prüfen und Inhalt ansehen
 
-**Run and Debug → Debug Local Agent HTTP Server → F5** → `07-hosting`. Im Agent Inspector
-„Prüfe PR-001“ und „Prüfe PR-999“ senden. PR-001 liefert das Prüfergebnis mit run_id,
-PR-999 JSON mit `fehler`. Stoppe den Debug-Lauf danach.
+F5, im Agent Inspector „Prüfe PR-001“ und „Prüfe PR-999“ senden. PR-001 liefert das Prüfergebnis
+mit run_id, PR-999 JSON mit `fehler`. Stoppe den Debug-Lauf danach.
 
-## Schritt 2 · Vollständigen Quellordner prüfen
+Bereitgestellt wird der Projektordner, den `azure.yaml` unter `project` nennt:
+`main.py`, deine Module, `pyproject.toml`, `uv.lock` und `daten/`. Die Abhängigkeiten installiert Foundry
+beim Bereitstellen aus den Projektdateien. `FOUNDRY_PROJECT_ENDPOINT` setzt der Foundry-Dienst in der Cloud
+selbst; den Modellnamen gibt `azure.yaml` als Umgebungsvariable mit. Die Cloud verwendet die Identität des
+Agenten; deine lokale Anmeldung wird nicht hochgeladen.
 
-Öffne **07-hosting als Workspace** in VS Code. Wähle die bestehende root `.venv` als Interpreter.
-`azure.yaml` liegt direkt in07, `services.pruefung.project` ist `.`: nur07 wird gepackt.
-`main.py`, Workflowmodule, `requirements.txt` und `daten/` müssen dort liegen.
-Die synthetischen Daten sind bereits kopiert; `tools.py` lädt diese lokale daten-Mappe.
-Bei eigenen Datenänderungen root und07 synchron halten.
-
-Im Terminal in07:
-
-```bash
-uv sync --locked
-cp ../.env .env
-```
-
-Prüfe FOUNDRY_PROJECT_ENDPOINT und AZURE_AI_MODEL_DEPLOYMENT_NAME=training-chat.
-Der Modellname ist in `azure.yaml` als Cloud-Umgebung deklariert.
-FOUNDRY_PROJECT_ENDPOINT setzt der Foundry-Dienst in der Cloud automatisch;
-für lokale Aufrufe steht er in deiner .env. Der Name ist als Deployment-Umgebungsvariable reserviert.
-Private .env, virtuelle Umgebung und Caches werden über `.agentignore` ausgeschlossen.
-Die Cloud verwendet die Identität des Agenten; deine lokale Anmeldung wird nicht hochgeladen.
-
-## Schritt 3 · Deployment in VS Code
+## Schritt 2 · Deployment in VS Code
 
 1. Foundry Toolkit → **Developer Tools → Build → Deploy to Microsoft Foundry**.
-2. Bestehendes Trainingsprojekt auswählen. **Code → Remote → New agent**.
-3. Eigener Name `kuenz-pruefung-trainingNN` (NN=deine Teilnehmernummer).
-4. Review: Python 3.13, Startbefehl `python3 main.py`, Quelle07-hosting,0.5CPU,1GiB.
-5. **Deploy**. Unter **My Resources → Agents → Hosted Agent → Details** den Laufstatus abwarten.
+2. **Foundry Project Setup**: Subscription `Kuenz Training 2026`, Project `kuenz-agents` → **Next**.
+3. **Basics**: Deployment Method **Code**, Package Mode **Remote**, Deploy to **New agent**,
+   Hosted Agent Name `kuenz-pruefung-trainingNN` (NN = deine Teilnehmernummer) → **Next**.
+4. **Review + Deploy**: Python (Auto-detected), Python 3.13, Entry Point `python main.py`,
+   0.5 CPU / 1.0 Gi → **Deploy**. Unten rechts erscheint „… is deployed successfully“.
+5. Unter **My Resources → Agents → Hosted Agent → Details** den Laufstatus abwarten.
 6. **Playground**: „Prüfe PR-001“, „Prüfe PR-201“, „Prüfe PR-999“ testen.
    Notiere Agentname, getestete Version, Endpunkt, response_id und run_id.
 
@@ -48,7 +33,7 @@ Eine neue Version wird mit **Existing agent** bereitgestellt. Die Versionsauswah
 vorgesehenen Stand liefern. Falls Automatic eine alte Version liefert, Endpoint-Routing
 im Foundry-Portal auf die neue Version setzen und erneut prüfen.
 
-## Schritt 4 · Gespeicherte Antwort mit dem SDK abrufen
+## Schritt 3 · Gespeicherte Antwort mit dem SDK abrufen
 
 Ein neuer Playground-Aufruf startet eine neue Prüfung. Ein GET mit der response_id liest
 das gespeicherte Resultat ohne neue Prüfung. Aus dem Projekt-Client direkt abrufen;
@@ -69,7 +54,7 @@ with AIProjectClient(endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
         print(response.model_dump().get("agent"))  # tatsächlicher Agentname und Version
 ```
 
-Du kannst den kurzen Code im Python-Terminal ausführen; ein eigenes Hilfsskript ist nicht nötig.
+Den kurzen Code führst du im Projektordner in `uv run python` aus.
 Prüfe dieselbe response_id, dasselbe JSON und dieselbe run_id. Im gespeicherten GET nennt
 `agent` den tatsächlichen Agentnamen und die Version; diese Version mit dem beabsichtigten
 Deployment vergleichen. Technisch completed ist
@@ -79,7 +64,7 @@ und die Anbindung des Dispatchers.
 ## Code verstehen
 
 1. Wie wird aus "Prüfe PR-001" die Auftrags-ID, und was ändert sich am Code zwischen lokal und Cloud?
-2. Warum eine Factory pro Request statt eines gemeinsam genutzten Workflows?
+2. Warum erzeugt `main.py` für jede Anfrage einen frischen Workflow?
 3. Welche IDs liefert der Workflow, welche der Responses-Dienst?
 4. Was wird gepackt, was bleibt privat, welche Identität läuft in der Cloud?
 

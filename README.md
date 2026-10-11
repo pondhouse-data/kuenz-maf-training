@@ -1,79 +1,67 @@
 # Künz Agententraining · Microsoft Agent Framework
 
-Du erzeugst dein erstes Agentenprojekt mit dem offiziellen **Foundry Toolkit** in VS Code.
-Danach erweiterst du es mit Tools, Gesprächsverlauf, Extraktion und einem Prüfworkflow.
-Die vorbereiteten Ordner sind Checkpoints: `02-tools` beginnt mit dem fertigen Stand von01,
-`03-session-middleware` mit dem fertigen Stand von02 und so weiter. Wenn ein Schritt nicht
-fertig wird, kannst du im nächsten Ordner weiterarbeiten. Im Teilnehmerprojekt ist01 leer.
+Du erzeugst dein Agentenprojekt mit dem offiziellen **Foundry Toolkit** in VS Code und baust genau
+dieses Projekt Schritt für Schritt aus: Tools, Gesprächsverlauf, Extraktion und ein Prüfworkflow.
+Am Ende stellst du dasselbe Projekt in Microsoft Foundry bereit.
 
-| Ordner | Aufgabe | Tag |
+| Schritt | Aufgabe | Tag |
 | --- | --- | --- |
-| `01-hello-world/` | Offizielles Basic-Responses-Projekt erzeugen, Paketversionen pinnen, im Agent Inspector testen | 2 |
-| [`02-tools`](02-tools/README.md) | Tools für Prüfauftrag, Katalog und Spezifikation | 2 |
-| [`03-session-middleware`](03-session-middleware/README.md) | Gesprächsverlauf und sichtbare Toolaufrufe | 2 |
-| [`04-extraktion`](04-extraktion/README.md) | Angaben in einem festen Schema extrahieren, als Tool des Prüfagenten | 2 |
-| [`05-workflow`](05-workflow/README.md) | Extrahieren, Regeln vergleichen, Ergebnis ausgeben; der Server startet den Workflow | 2 |
-| [`06-hitl`](06-hitl/README.md) | Optional: menschliche Entscheidung je Klärungspunkt, im Terminal | 3 |
-| [`07-hosting`](07-hosting/README.md) | Denselben Prüfworkflow über VS Code in Foundry bereitstellen | 3 |
+| Ü8 · [Projekt erzeugen](#ü8--projekt-mit-dem-foundry-toolkit-erzeugen) | Offizielles Sample erzeugen, im Agent Inspector testen, Streaming verstehen | 2 |
+| Ü9 · [Tools](anleitung/02-tools.md) | Tools für Prüfauftrag, Katalog und Spezifikation | 2 |
+| Ü10 · [Gesprächsverlauf und Middleware](anleitung/03-session-middleware.md) | Folgefragen und sichtbare Toolaufrufe | 2 |
+| Ü11 A · [Extraktion](anleitung/04-extraktion.md) | Angaben in einem festen Schema extrahieren, als Tool des Prüfagenten | 2 |
+| Ü11 B · [Prüfworkflow](anleitung/05-workflow.md) | Extrahieren, Regeln vergleichen, Ergebnis ausgeben | 2 |
+| Ü12 · [Ein Mensch entscheidet](anleitung/06-hitl.md) | Optional: menschliche Entscheidung je Klärungspunkt, im Terminal | 3 |
+| Ü13 · [Bereitstellen](anleitung/07-hosting.md) | Das Projekt über VS Code in Foundry bereitstellen | 3 |
 
 ## Umgebung öffnen
 
 [Eigenen Codespace öffnen](https://codespaces.new/pondhouse-data/kuenz-maf-training?quickstart=1).
 Dafür brauchst du einen persönlichen GitHub-Account mit verfügbarem Codespaces-Kontingent.
 Die Umgebung richtet Python 3.13, uv, Azure CLI, Python-Debugger, GitHub Copilot und Foundry Toolkit ein.
-Die festgelegten Pakete werden mit **uv** aus `uv.lock` in `.venv/` installiert. Warte bis die Einrichtung fertig ist.
 Foundry Toolkit läuft im Codespace über den Remote-Erweiterungshost und ist im Browsereditor verfügbar.
 Optional kannst du denselben Codespace über **… → Open in Visual Studio Code** in VS Code Desktop öffnen.
 
+Fragt VS Code „Do you trust the authors of the files in this folder?“: **Trust Folder & Continue**.
 
-Im Terminal im Repository-Hauptordner:
+Im Terminal anmelden, damit dein Code das Modell aufrufen darf:
 
 ```bash
-uv run python -c "import agent_framework.foundry; print('MAF bereit')"
-cp .env.example .env
 az login --use-device-code --tenant 42abcb50-0ca4-44ec-b66c-80926c94af9d
 ```
 
-Prüfe das angemeldete Trainingskonto. `.env` enthält Projektadresse und Modell `training-chat`;
-die Datei bleibt privat. Foundry Toolkit meldet dich separat an; `az login` gilt für das Terminal.
-Falls **Signing in to Azure** hängen bleibt: **Cancel** → beim angebotenen alternativen
-Anmeldeweg **Yes** → **Copy & Continue**; den Gerätecode mit dem Trainingskonto bestätigen.
+Prüfe das angemeldete Trainingskonto. `az login` gilt für das Terminal und deinen Code;
+Foundry Toolkit meldet dich im nächsten Schritt separat an.
 
-## Ü8 · Im leeren Ordner01 bootstrappen
+## Ü8 · Projekt mit dem Foundry Toolkit erzeugen
 
-1. Der Ordner `01-hello-world/` ist leer. Die `.gitkeep` ist nur eine Git-Markierung:
-   vor dem Erzeugen löschen. Im Toolkit wählst du diesen Ordner als Ziel.
-2. Foundry Toolkit in der linken Leiste öffnen → **Developer Tools → Build → Create Agent**.
-   Unter **Code an agent from samples**: **Agent Framework** wählen. Die aktuelle Katalogseite heißt **Build your first chat agent**.
-   **Use template** → **Agent Framework → Python → Responses** wählen. Im älteren Katalog heißt
-   dieselbe Vorlage **Basic Hosted Agent**.
-3. Bei **Workspace Folder** den Repository-Hauptordner, bei **Folder Name** `01-hello-world` wählen.
-   Prüfe das Ziel: genau der vorhandene leere Ordner01, kein zweiter01-Unterordner.
-   **Setup with Microsoft Foundry** → vorhandenes Trainingsprojekt `kuenz-agents` →
-   vorhandenes **Model Deployment** `training-chat` → **Create**. Kein neues Modell anlegen.
-4. Den erzeugten Ordner mit `azure.yaml` als Workspace offen lassen. Der Basic-Responses-Agent liegt in
-   `src/agent-framework-agent-basic-responses/main.py`; Die lokale `.env` liegt daneben. Der Katalog kann
-   `pyproject.toml`, `uv.lock` und `uv.toml` erzeugen.
-   Falls der Katalog den Namen verändert: die genaue Quellmappe steht bei `services → … → project` in `azure.yaml`.
-5. Übernimm in der **generierten Quellmappe** unseren getesteten Paketstand aus
-   [`requirements.txt`](requirements.txt). uv aktualisiert die Abhängigkeiten und Lockdatei
-   und richtet dort die eigene `.venv` ein:
+1. Foundry Toolkit in der linken Leiste öffnen → **Developer Tools → Build → Create Agent**.
+   Unter **Code an agent from samples** **Agent Framework** wählen. Vorlage: **Basic Hosted Agent**
+   (Python · Agent Framework · Responses).
+2. **Workspace Folder**: `/workspaces/kuenz-maf-training`, **Folder Name**: `pruefagent`.
+3. **Environment Setup**: **Setup with Microsoft Foundry**. Fragt das Toolkit nach einer Anmeldung, mit dem
+   Trainingskonto anmelden. **Subscription** `Kuenz Training 2026` → **Project Name** `kuenz-agents` →
+   **Model Deployment** `training-chat` → **Create**. Kein neues Projekt und kein neues Modell anlegen.
+4. VS Code öffnet den Ordner `pruefagent`. Die Frage nach dem Git-Repository im übergeordneten Ordner
+   kannst du schließen. Der Agent liegt in `src/agent-framework-agent-basic-responses/main.py`; das ist ab jetzt
+   dein **Projektordner**. Daneben liegt die `.env`, die das Toolkit mit `FOUNDRY_PROJECT_ENDPOINT` und
+   `AZURE_AI_MODEL_DEPLOYMENT_NAME=training-chat` gefüllt hat.
+5. Terminal öffnen und im Projektordner den im Training geprüften Paketstand festlegen. uv aktualisiert
+   `pyproject.toml` und `uv.lock` und legt die `.venv` an:
 
    ```bash
-   uv add -r ../../../requirements.txt --python 3.13
+   cd src/agent-framework-agent-basic-responses
+   uv add agent-framework-core==1.21.0 agent-framework-foundry==1.14.1 agent-framework-foundry-hosting==1.0.0b261008 azure-ai-projects==2.6.1
+   uv add --dev pytest==8.4.2
    ```
 
-   Der relative Pfad gilt für `01-hello-world/src/agent-framework-agent-basic-responses`.
-6. **Python: Select Interpreter** → **Enter interpreter path** → die neue
-   `<Repository-Hauptordner>/01-hello-world/src/agent-framework-agent-basic-responses/.venv/bin/python`.
-   Im Codespace beginnt der Pfad mit `/workspaces/kuenz-maf-training/`.
-
-7. Prüfe die generierte `.env`: `FOUNDRY_PROJECT_ENDPOINT` ist unsere Projektadresse,
-   `AZURE_AI_MODEL_DEPLOYMENT_NAME=training-chat`. Das Sample und unsere weiteren Checkpoints verwenden denselben Modellnamen.
-8. **Run and Debug → Debug Local Agent HTTP Server → F5**. Der Server startet auf Port 8088,
+6. **Python: Select Interpreter** → **Enter interpreter path** →
+   `/workspaces/kuenz-maf-training/pruefagent/src/agent-framework-agent-basic-responses/.venv/bin/python`.
+7. **Run and Debug → Debug Local Agent HTTP Server → F5**. Der Server startet auf Port 8088,
    Agent Inspector öffnet sich. Frage: „Was ist ein Agent? Antworte in zwei Sätzen.“
-   Ändere die Instructions in `main.py`, speichere, starte neu und vergleiche.
-   Agent Inspector allein startet den Server nicht. Stoppe den Debug-Lauf vor dem nächsten Serverstart.
+8. Ändere die Instructions in `main.py` auf
+   `"Du bist ein hilfreicher Assistent. Antworte kurz und auf Deutsch."`, speichere, stoppe den Debug-Lauf,
+   starte mit F5 neu und vergleiche. Agent Inspector allein startet den Server nicht.
 
 ### Agent und Streaming verstehen
 
@@ -81,44 +69,33 @@ Im Agent Inspector erscheint die Antwort Stück für Stück. Unter **Events** si
 `response.output_text.delta`-Ereignisse: Der Server streamt die Antwort, sobald das Modell sie erzeugt.
 
 ```text
-Erkläre mir #file:src/agent-framework-agent-basic-responses/main.py Zeile für Zeile:
+Erkläre mir #file:main.py Zeile für Zeile:
 Client, Agent, Instructions und ResponsesHostServer. Wie kommt eine Frage aus dem Agent Inspector
 zum Agenten, und wo wird die Antwort gestreamt?
 ```
 
-Stoppe den Debug-Lauf. Öffne anschließend wieder den Repository-Hauptordner und wähle in VS Code
-den root Interpreter `<Repository-Hauptordner>/.venv/bin/python`. Ab02 verwendet jeder Ordner die
-root `.venv` und die root `.env`.
+## Ab Ü9 · Im eigenen Projekt weiterarbeiten
 
-## Ab02 · Lokale Übungen
-
-Jeder Ordner von02 bis05 und07 hat ein `main.py` nach dem Muster des offiziellen Samples.
-Gestartet wird wie in01: **Run and Debug → Debug Local Agent HTTP Server → F5**, dann den
-Übungsordner auswählen. Der Server startet auf Port 8088, Agent Inspector öffnet sich.
-Stoppe den Debug-Lauf, bevor du einen anderen Ordner startest.
-
-Tests laufen im **Repository-Hauptordner**. `uv run` verwendet automatisch die dortige `.venv`; eine Aktivierung ist nicht nötig:
+Alle weiteren Schritte ändern dasselbe Projekt. Gestartet wird immer mit **F5**, getestet im
+Agent Inspector. Nach einer Codeänderung den Debug-Lauf stoppen und neu starten.
+Tests laufen im Terminal im Projektordner:
 
 ```bash
-uv run pytest 03-session-middleware
+uv run pytest
 ```
 
-Teste je Ordner separat: die Checkpoints besitzen gleichnamige Module.
-`06-hitl` läuft im Terminal: Dort beantwortest du die Rückfragen des Workflows mit der Tastatur.
-`07-hosting/` ist zusätzlich ein vollständiger Deployment-Quellordner mit eigenen
-`requirements.txt`, `azure.yaml` und einer Kopie von `daten/`.
+Für die Prompts öffnest du Copilot Chat. `#file:…` hängt eine Datei an, damit Copilot sie sieht.
 
 ## Daten und Aufbewahren
 
 `daten/` enthält synthetische Prüfaufträge, Anforderungen, Spezifikationen und Referenzbefunde.
 Im Betrieb kämen diese aus ERP, Dataverse, SharePoint beziehungsweise einer Dokumentextraktion.
-`referenzbefunde.json` enthält menschlich geprüfte Sollbefunde; die lokalen Vergleiche bleiben möglich.
-Beim Deployen müssen die Daten im Quellpaket liegen. Die Kopie in07 wird bei der Vorbereitung gegen root geprüft.
+`referenzbefunde.json` enthält menschlich geprüfte Sollbefunde. In Ü9 kopierst du den Ordner in deinen
+Projektordner, damit er beim Bereitstellen mitkommt.
 
 Speichere deine Dateien. Auf https://github.com/codespaces am Tagesende **… → Stop codespace** wählen.
 Dateien und Anmeldung bleiben erhalten. Vor dem Löschen eigene Projektdateien herunterladen;
 private `.env` und Anmeldung gehören nicht in eine weitergegebene Kopie.
 Nach dem Training erzeugst du eigene Projekte genauso über das offizielle Toolkit.
-Ein separates Starter-Repository und dessen Transfer entfallen.
 
 [Offizieller Bootstrap, lokaler Test und Deployment](https://code.visualstudio.com/docs/intelligentapps/hosted-agents).

@@ -1,11 +1,10 @@
-# 03 · Session und Middleware
+# Ü10 · Gesprächsverlauf und Middleware
 
 Ein Modell merkt sich zwischen zwei Aufrufen nichts. Damit Folgefragen funktionieren, muss bei
 jeder Frage der bisherige Gesprächsverlauf mitgeschickt werden. Das übernimmt hier der
 Responses-Server. Mit **Middleware** siehst du, welches Tool der Agent wann aufruft und wie lange es dauert.
 
-**Ausgangspunkt:** der fertige Stand aus 02 (`main.py`, `tools.py`, `test_tools.py`).
-Starten: **Run and Debug → Debug Local Agent HTTP Server → F5** → `03-session-middleware`.
+**Ausgangspunkt:** dein Projekt nach Ü9 (`main.py`, `tools.py`, `test_tools.py`).
 
 ## Schritt 1 · Ein Gespräch über den Server
 
@@ -16,7 +15,7 @@ Klick auf **Clear Chat** und stell nur die zweite Frage. Jetzt beginnt ein neues
 Der Agent weiß nicht, worauf sich „dazu“ bezieht, und fragt nach.
 
 ```text
-Erkläre mir anhand von #file:03-session-middleware/main.py: Woher kennt der Agent bei der Folgefrage
+Erkläre mir anhand von #file:main.py: Woher kennt der Agent bei der Folgefrage
 das bisherige Gespräch? Was speichert der ResponsesHostServer (Microsoft Agent Framework 1.21),
 und was ändert sich mit Clear Chat?
 ```
@@ -24,7 +23,7 @@ und was ändert sich mit Clear Chat?
 ## Schritt 2 · Toolaufrufe sichtbar machen
 
 ```text
-Ergänze in #file:03-session-middleware/main.py eine Middleware mit @function_middleware aus agent_framework,
+Ergänze in #file:main.py eine Middleware mit @function_middleware aus agent_framework,
 die bei jedem Toolaufruf Toolname und Dauer ausgibt, z. B. "  [Tool lade_anforderungskatalog, 0.00 s]".
 Gib sie dem Agenten mit middleware=[...].
 ```
@@ -39,7 +38,3 @@ und frag noch einmal: Der Debugger hält vor dem Tool an, im Fenster **Variables
 2. **Welche Eingaben?** Was bekommt die Middleware (`context`) und was ist `call_next`?
 3. **Was kommt zurück?** Was passiert, wenn die Middleware `call_next()` nicht aufruft?
 4. **Was passiert bei Fehlern?** Was gibt die Middleware aus, wenn ein Tool einen Fehler liefert?
-
-## Nicht fertig geworden?
-
-Der Ordner `04-extraktion` startet mit unserem fertigen Stand dieses Schritts.

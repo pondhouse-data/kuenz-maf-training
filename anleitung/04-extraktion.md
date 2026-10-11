@@ -1,22 +1,21 @@
-# 04 · Strukturierte Ausgabe
+# Ü11 A · Strukturierte Ausgabe
 
 Für die Prüfung soll das Modell nicht frei antworten, sondern **Angaben in einem
 festen Schema** liefern: je Anforderung die Fundstellen mit Abschnitt, wörtlichem
-Zitat und Wert. Ob eine Anforderung erfüllt ist, entscheidet danach der Code (Schritt 05).
+Zitat und Wert. Ob eine Anforderung erfüllt ist, entscheidet danach der Code (Ü11 B).
 
-**Ausgangspunkt:** der fertige Stand aus 03.
-Starten: **Run and Debug → Debug Local Agent HTTP Server → F5** → `04-extraktion`.
+**Ausgangspunkt:** dein Projekt nach Ü10.
 
 ## Schritt 1 · Das Schema und die Extraktion
 
 ```text
-Lege 04-extraktion/extraktion.py an (Microsoft Agent Framework 1.21). Ein Agent ohne Tools liest eine Version
+Lege extraktion.py neben #file:main.py an (Microsoft Agent Framework 1.21). Ein Agent ohne Tools liest eine Version
 der Spezifikation und liefert zu jeder Anforderung R-01 bis R-06 die Fundstellen: Abschnitt, wörtliches Zitat
 und die gefundenen Werte. Er bewertet nicht. Nur bei R-06 schlägt er "erfüllt", "abweichend" oder "unklar" vor,
 mit Begründung.
 - Die Antwort kommt in einem festen Schema (Pydantic, response_format), nicht als freier Text.
 - Im Prompt stehen die Anforderungen von A-100 und der ganze Text der Spezifikation samt Anhang.
-  Hol beides mit den Funktionen aus #file:04-extraktion/tools.py.
+  Hol beides mit den Funktionen aus #file:tools.py.
 - Anweisung an den Agenten: nur den gelieferten Text verwenden, wörtlich zitieren, bei unterschiedlichen
   Werten alle Fundstellen liefern, nichts erfinden. Werte als Liste ohne Einheit, z. B. ["DE","EN"], ["41"], ["1.4"], ["-20","40"].
 - Das Modell soll gründlich lesen (reasoning effort medium).
@@ -24,7 +23,7 @@ mit Begründung.
 - Stelle die Extraktion als async Tool extrahiere_angaben(document_version) mit @tool bereit. Es liefert
   je Anforderung die Fundstellen, jede mit im_text true oder false. Eine unbekannte Version liefert den
   Fehler von lade_spezifikation.
-Baue den Client so auf wie in #file:04-extraktion/main.py und gib das Tool dort dem PruefAgent.
+Baue den Client so auf wie in #file:main.py und gib das Tool dort dem PruefAgent.
 ```
 
 Neu starten und im Agent Inspector fragen: „Welche Fundstellen hat Version 2 zu R-04?“ und
@@ -43,7 +42,3 @@ Die Spezifikation widerspricht sich hier. Für Version 1 nennt das Modell bei R-
 4. **Was passiert bei Fehlern?** Was steht im Toolergebnis, wenn das Modell ein Zitat erfindet?
 
 Das Schema erzwingt die **Form** der Antwort, nicht ihre **Wahrheit**. Deshalb prüft der Code die Zitate.
-
-## Nicht fertig geworden?
-
-Der Ordner `05-workflow` startet mit unserem fertigen Stand dieses Schritts.
