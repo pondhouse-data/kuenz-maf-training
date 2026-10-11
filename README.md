@@ -60,7 +60,7 @@ Anmeldeweg **Yes** → **Copy & Continue**; den Gerätecode mit dem Trainingskon
    und richtet dort die eigene `.venv` ein:
 
    ```bash
-   uv add -r ../../../requirements.txt
+   uv add -r ../../../requirements.txt --python 3.13
    ```
 
    Der relative Pfad gilt für `01-hello-world/src/agent-framework-agent-basic-responses`.
