@@ -1,7 +1,7 @@
 """Schritt 2: Der Agent bekommt Tools und antwortet aus unseren Daten.
 
 Starten im Projekt-Hauptordner:
-    python 03-session-middleware/agent.py "Was gilt für R-03 bei A-100?"
+    uv run python 03-session-middleware/agent.py "Was gilt für R-03 bei A-100?"
 """
 
 import asyncio

@@ -1,8 +1,8 @@
 """Schritt 4: Das Modell liest die Spezifikation und liefert Angaben in einem festen Schema.
 
 Starten im Projekt-Hauptordner:
-    python 04-extraktion/extraktion.py 1
-    python 04-extraktion/extraktion.py 2
+    uv run python 04-extraktion/extraktion.py 1
+    uv run python 04-extraktion/extraktion.py 2
 """
 
 import asyncio

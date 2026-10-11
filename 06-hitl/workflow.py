@@ -1,8 +1,8 @@
 """Schritt 5: Die Prüfung als Workflow aus vier festen Schritten.
 
 Starten im Projekt-Hauptordner:
-    python 06-hitl/workflow.py PR-001
-    python 06-hitl/workflow.py PR-201
+    uv run python 06-hitl/workflow.py PR-001
+    uv run python 06-hitl/workflow.py PR-201
 """
 
 import asyncio

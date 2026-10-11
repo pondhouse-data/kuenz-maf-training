@@ -20,8 +20,8 @@ fertig wird, kannst du im nächsten Ordner weiterarbeiten. Im Teilnehmerprojekt 
 
 [Eigenen Codespace öffnen](https://codespaces.new/pondhouse-data/kuenz-maf-training?quickstart=1).
 Dafür brauchst du einen persönlichen GitHub-Account mit verfügbarem Codespaces-Kontingent.
-Die Umgebung richtet Python 3.13, Azure CLI, Python-Debugger, GitHub Copilot und Foundry Toolkit ein.
-Die festgelegten Pakete werden mit **pip** in `.venv/` installiert. Warte bis die Einrichtung fertig ist.
+Die Umgebung richtet Python 3.13, uv, Azure CLI, Python-Debugger, GitHub Copilot und Foundry Toolkit ein.
+Die festgelegten Pakete werden mit **uv** aus `uv.lock` in `.venv/` installiert. Warte bis die Einrichtung fertig ist.
 Foundry Toolkit läuft im Codespace über den Remote-Erweiterungshost und ist im Browsereditor verfügbar.
 Optional kannst du denselben Codespace über **… → Open in Visual Studio Code** in VS Code Desktop öffnen.
 
@@ -29,8 +29,7 @@ Optional kannst du denselben Codespace über **… → Open in Visual Studio Cod
 Im Terminal im Repository-Hauptordner:
 
 ```bash
-source .venv/bin/activate
-python -c "import agent_framework.foundry; print('MAF bereit')"
+uv run python -c "import agent_framework.foundry; print('MAF bereit')"
 cp .env.example .env
 az login --use-device-code --tenant 42abcb50-0ca4-44ec-b66c-80926c94af9d
 ```
@@ -54,20 +53,21 @@ Anmeldeweg **Yes** → **Copy & Continue**; den Gerätecode mit dem Trainingskon
    vorhandenes **Model Deployment** `training-chat` → **Create**. Kein neues Modell anlegen.
 4. Den erzeugten Ordner mit `azure.yaml` als Workspace offen lassen. Der Basic-Responses-Agent liegt in
    `src/agent-framework-agent-basic-responses/main.py`; Die lokale `.env` liegt daneben. Der Katalog kann
-   `requirements.txt` oder `pyproject.toml` mit `uv.lock` erzeugen.
+   `pyproject.toml`, `uv.lock` und `uv.toml` erzeugen; diese Dateien bleiben erhalten.
    Falls der Katalog den Namen verändert: die genaue Quellmappe steht bei `services → … → project` in `azure.yaml`.
-5. Lege die **requirements.txt in dieser Quellmappe** an bzw. ersetze sie durch den Inhalt unserer
-   [`requirements.txt`](requirements.txt). So verwendet das offizielle Gerüst unseren getesteten Paketstand.
-   Falls die Vorlage stattdessen `pyproject.toml`, `uv.lock` und `uv.toml` mitbringt,
-   entferne diese drei Dateien aus der Quellmappe: lokale Installation und Remote-Build verwenden
-   dadurch dieselbe gepinnte requirements.txt. Die generierten `.vscode`-Dateien und `main.py` bleiben erhalten.
-6. **Python: Select Interpreter** → **Enter interpreter path** → unsere bestehende
-   `<Repository-Hauptordner>/.venv/bin/python`. Im Codespace ist das
-   `/workspaces/kuenz-maf-training/.venv/bin/python`. In der generierten Quellmappe:
+5. Übernimm in der **generierten Quellmappe** unseren getesteten Paketstand aus
+   [`requirements.txt`](requirements.txt). uv aktualisiert die Abhängigkeiten und Lockdatei
+   und richtet dort die eigene `.venv` ein:
 
    ```bash
-   python -m pip install -r requirements.txt
+   uv add -r ../../../requirements.txt
    ```
+
+   Der relative Pfad gilt für `01-hello-world/src/agent-framework-agent-basic-responses`.
+   Die generierten `.vscode`-Dateien und `main.py` bleiben erhalten.
+6. **Python: Select Interpreter** → **Enter interpreter path** → die neue
+   `<Repository-Hauptordner>/01-hello-world/src/agent-framework-agent-basic-responses/.venv/bin/python`.
+   Im Codespace beginnt der Pfad mit `/workspaces/kuenz-maf-training/`.
 
 7. Prüfe die generierte `.env`: `FOUNDRY_PROJECT_ENDPOINT` ist unsere Projektadresse,
    `AZURE_AI_MODEL_DEPLOYMENT_NAME=training-chat`. Das Sample und unsere weiteren Checkpoints verwenden denselben Modellnamen.
@@ -93,11 +93,11 @@ und gib response.text aus. main.py und die Hosting-Konfiguration bleiben erhalte
 Erkläre Client, Agent, Instructions und run().
 ```
 
-Zurück im Repository-Hauptordner mit aktivierter `.venv`:
+Zurück im Repository-Hauptordner:
 
 ```bash
-python 01-hello-world/agent.py
-python 01-hello-world/agent.py "Was ist ein Tool bei einem Agenten?"
+uv run python 01-hello-world/agent.py
+uv run python 01-hello-world/agent.py "Was ist ein Tool bei einem Agenten?"
 ```
 
 Danach:
@@ -111,16 +111,17 @@ Zum Schluss ein Zeilenumbruch. Erkläre den Unterschied zum bisherigen Aufruf.
 
 Lies den Code, teste ihn und beobachte, wann die Antwort erscheint.
 Öffne anschließend wieder den Repository-Hauptordner. Für02 und alle weiteren lokalen Übungen
-verwenden wir dieselbe `.venv` und die root `.env`. Der vorgegebene Checkpoint02 enthält den
+verwendet `uv run` die root `.venv` und die root `.env`. Wähle in VS Code wieder
+den root Interpreter `<Repository-Hauptordner>/.venv/bin/python`. Der vorgegebene Checkpoint02 enthält den
 fertigen direkten Aufruf aus01 plus den Basic-Hosting-Einstiegspunkt; die Fachübungen arbeiten mit `agent.py`.
 
 ## Ab02 · Lokale Übungen
 
-Alle Befehle laufen im **Repository-Hauptordner** mit aktivierter `.venv`:
+Alle Befehle laufen im **Repository-Hauptordner**. `uv run` verwendet automatisch die dortige `.venv`; eine Aktivierung ist nicht nötig:
 
 ```bash
-python 02-tools/agent.py
-python -m pytest 03-session-middleware
+uv run python 02-tools/agent.py
+uv run pytest 03-session-middleware
 ```
 
 Teste je Ordner separat: die Checkpoints besitzen gleichnamige Module.

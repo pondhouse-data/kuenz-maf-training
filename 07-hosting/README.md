@@ -5,7 +5,7 @@ Der Prüfworkflow läuft bisher lokal. Jetzt bekommt er eine Responses-Schnittst
 `main.py` nach dem offiziellen MAF-Sample. Deployment und Playground übernimmt VS Code.
 
 **Ausgangspunkt:** fertiger Workflow aus05, im Checkpoint07 vorbereitet.
-Lokale Befehle zunächst im Repository-Hauptordner mit aktivierter `.venv`.
+Lokale Befehle zunächst im Repository-Hauptordner mit `uv run`.
 
 ## Schritt 1 · Workflow als Agent
 
@@ -23,8 +23,8 @@ Erhalte Extraktion, Regeln und Ergebnisstruktur.
 ```
 
 ```bash
-python 07-hosting/workflow.py PR-001
-python 07-hosting/workflow.py PR-999
+uv run python 07-hosting/workflow.py PR-001
+uv run python 07-hosting/workflow.py PR-999
 ```
 
 Erwartet: PR-001 wie05 (sechs✓), zusätzlich run_id. PR-999 liefert JSON mit fehler.
@@ -45,7 +45,7 @@ Erkläre Request → ResponsesHostServer → Workflow → JSON.
 ```
 
 ```bash
-python 07-hosting/main.py
+uv run python 07-hosting/main.py
 ```
 
 Der Server hört auf Port 8088. Im Toolkit **Agent Inspector** mit dem lokalen Server verbinden
@@ -68,7 +68,7 @@ Bei eigenen Datenänderungen root und07 synchron halten.
 Im Terminal in07:
 
 ```bash
-python -m pip install -r requirements.txt
+uv sync --locked
 cp ../.env .env
 ```
 

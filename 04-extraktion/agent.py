@@ -1,7 +1,7 @@
 """Schritt 3: Gespräch mit Gedächtnis (Session) und sichtbaren Toolaufrufen (Middleware).
 
 Starten im Projekt-Hauptordner:
-    python 04-extraktion/agent.py
+    uv run python 04-extraktion/agent.py
 Beenden mit einer leeren Eingabe.
 """
 

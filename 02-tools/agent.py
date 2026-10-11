@@ -1,7 +1,7 @@
 """Ausgangspunkt für Ü9: direkter Agentaufruf aus dem offiziellen Basic-Responses-Projekt.
 
-Vom Repository-Hauptordner mit aktivierter .venv starten:
-    python 02-tools/agent.py
+Vom Repository-Hauptordner mit uv run starten:
+    uv run python 02-tools/agent.py
 """
 import asyncio
 import os

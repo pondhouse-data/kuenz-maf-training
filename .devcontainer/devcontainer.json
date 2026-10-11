@@ -13,7 +13,7 @@
     "memory": "8gb",
     "storage": "32gb"
   },
-  "postCreateCommand": "python -m venv .venv && .venv/bin/python -m pip install -r requirements.txt",
+  "postCreateCommand": "uv sync --locked",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -28,7 +28,7 @@
         "terminal.integrated.defaultProfile.linux": "bash",
         "editor.fontSize": 16,
         "terminal.integrated.fontSize": 16,
-        "python.terminal.activateEnvironment": true
+        "python.terminal.activateEnvironment": false
       }
     },
     "codespaces": {

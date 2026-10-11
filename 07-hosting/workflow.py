@@ -1,8 +1,8 @@
 """Schritt 5: Die Prüfung als Workflow aus vier festen Schritten (Ausgangspunkt für 07-hosting).
 
 Starten im Projekt-Hauptordner:
-    python 07-hosting/workflow.py PR-001
-    python 07-hosting/workflow.py PR-201
+    uv run python 07-hosting/workflow.py PR-001
+    uv run python 07-hosting/workflow.py PR-201
 """
 
 import asyncio
