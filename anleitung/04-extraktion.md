@@ -31,8 +31,9 @@ Neu starten und im Agent Inspector fragen: „Welche Fundstellen hat Version 2 z
 Dort steht das ganze Ergebnis der Extraktion, je Fundstelle mit `im_text`.
 
 Erwartet für Version 2 bei R-04 **zwei** Fundstellen: §4.1 mit 30 ms und §A.1 mit 80 ms.
-Die Spezifikation widerspricht sich hier. Für Version 1 nennt das Modell bei R-05 vermutlich
-§6.3 mit einer Raumtemperatur; das betrifft das Bedienpult, nicht den Kran.
+Die Spezifikation widerspricht sich hier. Für Version 1 liefert das Modell bei R-05 entweder keine
+Fundstelle oder §6.3 mit einer Raumtemperatur. §6.3 betrifft das Bedienpult, nicht den Kran;
+in Ü11 B sortiert die Regel solche Fundstellen aus.
 
 ## Code verstehen
 

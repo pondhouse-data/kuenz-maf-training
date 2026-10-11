@@ -68,10 +68,21 @@ Foundry Toolkit meldet dich im nächsten Schritt separat an.
 Im Agent Inspector erscheint die Antwort Stück für Stück. Unter **Events** siehst du die einzelnen
 `response.output_text.delta`-Ereignisse: Der Server streamt die Antwort, sobald das Modell sie erzeugt.
 
+Ob gestreamt wird, entscheidet der Aufrufer. Lass den Server laufen und ruf ihn in einem zweiten Terminal
+einmal ohne und einmal mit Streaming auf:
+
+```bash
+curl -s localhost:8088/responses -H "Content-Type: application/json" -d '{"input": "Was ist ein Agent?", "stream": false}'
+curl -sN localhost:8088/responses -H "Content-Type: application/json" -d '{"input": "Was ist ein Agent?", "stream": true}'
+```
+
+Ohne Streaming kommt die ganze Antwort auf einmal als ein JSON-Objekt, sobald sie fertig ist. Mit Streaming
+kommen nacheinander einzelne Ereignisse. Dein `main.py` bleibt dafür gleich.
+
 ```text
 Erkläre mir #file:main.py Zeile für Zeile:
 Client, Agent, Instructions und ResponsesHostServer. Wie kommt eine Frage aus dem Agent Inspector
-zum Agenten, und wo wird die Antwort gestreamt?
+zum Agenten? Was macht der Server bei "stream": true anders als bei "stream": false?
 ```
 
 ## Ab Ü9 · Im eigenen Projekt weiterarbeiten
