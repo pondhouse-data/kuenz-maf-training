@@ -1,38 +1,41 @@
 # 03 · Session und Middleware
 
-Bisher vergisst der Agent nach jeder Antwort alles. Mit einer **Session** führt er
-ein Gespräch: Folgefragen beziehen sich auf das Vorherige. Mit **Middleware** siehst
-du, welches Tool er wann aufruft und wie lange es dauert.
+Ein Modell merkt sich zwischen zwei Aufrufen nichts. Damit Folgefragen funktionieren, muss bei
+jeder Frage der bisherige Gesprächsverlauf mitgeschickt werden. Das übernimmt hier der
+Responses-Server. Mit **Middleware** siehst du, welches Tool der Agent wann aufruft und wie lange es dauert.
 
-**Ausgangspunkt:** der fertige Stand aus 02 (`agent.py`, `tools.py`, `test_tools.py`).
+**Ausgangspunkt:** der fertige Stand aus 02 (`main.py`, `tools.py`, `test_tools.py`).
+Starten: **Run and Debug → Debug Local Agent HTTP Server → F5** → `03-session-middleware`.
 
-## Schritt 1 · Ein Gespräch mit Session
+## Schritt 1 · Ein Gespräch über den Server
+
+Frag im Agent Inspector nacheinander: „Was gilt für R-03 bei A-100?“ und dann
+„Und was steht dazu in Version 1 der Spezifikation?“. Der Agent versteht das „dazu“.
+
+Klick auf **Clear Chat** und stell nur die zweite Frage. Jetzt beginnt ein neues Gespräch:
+Der Agent weiß nicht, worauf sich „dazu“ bezieht, und fragt nach.
 
 ```text
-Baue #file:03-session-middleware/agent.py zu einem kleinen Chat im Terminal um: Fragen lesen und beantworten,
-bis eine leere Eingabe kommt. Der Agent soll sich an das bisherige Gespräch erinnern. Verwende dafür eine
-Session mit agent.create_session() (Microsoft Agent Framework 1.21). Ohne Streaming.
+Erkläre mir anhand von #file:03-session-middleware/main.py: Woher kennt der Agent bei der Folgefrage
+das bisherige Gespräch? Was speichert der ResponsesHostServer (Microsoft Agent Framework 1.21),
+und was ändert sich mit Clear Chat?
 ```
-
-```bash
-uv run python 03-session-middleware/agent.py
-```
-
-Frag nacheinander: „Was gilt für R-03 bei A-100?“ und dann „Und was steht dazu in Version 1 der Spezifikation?“.
-Der Agent versteht das „dazu“. Nimm zum Vergleich die Session beim Aufruf von `agent.run` heraus und frag noch einmal.
 
 ## Schritt 2 · Toolaufrufe sichtbar machen
 
 ```text
-Ergänze in #file:03-session-middleware/agent.py eine Middleware mit @function_middleware aus agent_framework,
+Ergänze in #file:03-session-middleware/main.py eine Middleware mit @function_middleware aus agent_framework,
 die bei jedem Toolaufruf Toolname und Dauer ausgibt, z. B. "  [Tool lade_anforderungskatalog, 0.00 s]".
+Gib sie dem Agenten mit middleware=[...].
 ```
 
-Starte den Chat erneut. Bei jeder Frage siehst du jetzt, welche Tools das Modell aufruft.
+Neu starten und eine Frage stellen. Im Terminal des Servers siehst du jetzt bei jeder Frage,
+welche Tools das Modell aufruft. Setz zusätzlich einen Breakpoint auf `await call_next()`
+und frag noch einmal: Der Debugger hält vor dem Tool an, im Fenster **Variables** steht `context`.
 
 ## Code verstehen
 
-1. **Was ist neu?** Wo entsteht die Session, wo wird sie übergeben?
+1. **Was ist neu?** Wo hängt die Middleware am Agenten, wo entsteht der Gesprächsverlauf?
 2. **Welche Eingaben?** Was bekommt die Middleware (`context`) und was ist `call_next`?
 3. **Was kommt zurück?** Was passiert, wenn die Middleware `call_next()` nicht aufruft?
 4. **Was passiert bei Fehlern?** Was gibt die Middleware aus, wenn ein Tool einen Fehler liefert?

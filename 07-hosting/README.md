@@ -1,63 +1,17 @@
 # 07 · Der Prüfworkflow als Hosted Agent
 
-Der Prüfworkflow läuft bisher lokal. Jetzt bekommt er eine Responses-Schnittstelle und wird
-über **Foundry Toolkit → Code → Remote** bereitgestellt. Der Hosting-Einstieg ist ein kleines
-`main.py` nach dem offiziellen MAF-Sample. Deployment und Playground übernimmt VS Code.
+Der Prüfworkflow aus 05 läuft bisher lokal hinter `main.py`. Jetzt stellst du denselben Code
+über **Foundry Toolkit → Code → Remote** in Foundry bereit. Deployment und Playground übernimmt VS Code.
 
-**Ausgangspunkt:** fertiger Workflow aus05, im Checkpoint07 vorbereitet.
-Lokale Befehle zunächst im Repository-Hauptordner mit `uv run`.
+**Ausgangspunkt:** fertiger Workflow aus 05 samt `main.py`, im Checkpoint07 vorbereitet.
 
-## Schritt 1 · Workflow als Agent
+## Schritt 1 · Lokal prüfen
 
-```text
-Erweitere #file:07-hosting/workflow.py mit der Agent-Schnittstelle von MAF 1.21.0:
-- Erster Schritt akzeptiert list[Message], extrahiert PR-xxx aus der letzten Nachricht.
-- Unbekannter Auftrag liefert die bestehende Fehlermeldung als JSON.
-- Ergebnis als JSON-Text, ergänzt um run_id (UUID).
-- erstelle_agent() baut mit FoundryChatClient und DefaultAzureCredential einen
-  FRISCHEN Workflow und gibt workflow.as_agent(name="Spezifikationspruefung") zurück.
-- Konfiguration FOUNDRY_PROJECT_ENDPOINT und AZURE_AI_MODEL_DEPLOYMENT_NAME aus .env/Cloudumgebung.
-- Lokale main() ruft "Prüfe <ID>" auf, druckt JSON und vergleicht bekannte Aufträge
-  weiterhin mit Referenzbefunden. Fehler ohne review_id ebenfalls verständlich ausgeben.
-Erhalte Extraktion, Regeln und Ergebnisstruktur.
-```
+**Run and Debug → Debug Local Agent HTTP Server → F5** → `07-hosting`. Im Agent Inspector
+„Prüfe PR-001“ und „Prüfe PR-999“ senden. PR-001 liefert das Prüfergebnis mit run_id,
+PR-999 JSON mit `fehler`. Stoppe den Debug-Lauf danach.
 
-```bash
-uv run python 07-hosting/workflow.py PR-001
-uv run python 07-hosting/workflow.py PR-999
-```
-
-Erwartet: PR-001 wie05 (sechs✓), zusätzlich run_id. PR-999 liefert JSON mit fehler.
-
-## Schritt 2 · Hosting-Einstieg selbst ergänzen
-
-```text
-Erzeuge #file:07-hosting/main.py nach der offiziellen MAF-Hosting-Integration.
-Importiere ResponsesHostServer aus agent_framework_foundry_hosting,
-load_dotenv aus dotenv und erstelle_agent aus workflow.
-Unter if __name__ == "__main__": load_dotenv();
-ResponsesHostServer(erstelle_agent, history_source="agent").run().
-Übergib die Funktion als Factory, rufe sie hier nicht vorab auf:
-jede Anfrage braucht einen frischen Workflow. Die Workflow-Nachrichtenhistorie
-verwaltet MAF; history_source="agent" erhält dessen Routing.
-Kein Deployment-Skript; workflow.py bleibt direkt ausführbar.
-Erkläre Request → ResponsesHostServer → Workflow → JSON.
-```
-
-```bash
-uv run python 07-hosting/main.py
-```
-
-Der Server hört auf Port 8088. Im Toolkit **Agent Inspector** mit dem lokalen Server verbinden
-und „Prüfe PR-001“ sowie „Prüfe PR-999“ senden. Alternativ im zweiten Terminal:
-
-```bash
-curl -s http://localhost:8088/responses -H "Content-Type: application/json" -d '{"input":"Prüfe PR-999","stream":false}'
-```
-
-Stoppe den lokalen Server mit Ctrl+C.
-
-## Schritt 3 · Vollständigen Quellordner prüfen
+## Schritt 2 · Vollständigen Quellordner prüfen
 
 Öffne **07-hosting als Workspace** in VS Code. Wähle die bestehende root `.venv` als Interpreter.
 `azure.yaml` liegt direkt in07, `services.pruefung.project` ist `.`: nur07 wird gepackt.
@@ -79,7 +33,7 @@ für lokale Aufrufe steht er in deiner .env. Der Name ist als Deployment-Umgebun
 Private .env, virtuelle Umgebung und Caches werden über `.agentignore` ausgeschlossen.
 Die Cloud verwendet die Identität des Agenten; deine lokale Anmeldung wird nicht hochgeladen.
 
-## Schritt 4 · Deployment in VS Code
+## Schritt 3 · Deployment in VS Code
 
 1. Foundry Toolkit → **Developer Tools → Build → Deploy to Microsoft Foundry**.
 2. Bestehendes Trainingsprojekt auswählen. **Code → Remote → New agent**.
@@ -94,7 +48,7 @@ Eine neue Version wird mit **Existing agent** bereitgestellt. Die Versionsauswah
 vorgesehenen Stand liefern. Falls Automatic eine alte Version liefert, Endpoint-Routing
 im Foundry-Portal auf die neue Version setzen und erneut prüfen.
 
-## Schritt 5 · Gespeicherte Antwort mit dem SDK abrufen
+## Schritt 4 · Gespeicherte Antwort mit dem SDK abrufen
 
 Ein neuer Playground-Aufruf startet eine neue Prüfung. Ein GET mit der response_id liest
 das gespeicherte Resultat ohne neue Prüfung. Aus dem Projekt-Client direkt abrufen;
@@ -124,7 +78,7 @@ und die Anbindung des Dispatchers.
 
 ## Code verstehen
 
-1. Warum as_agent()? Wie wird aus "Prüfe PR-001" die Auftrags-ID?
+1. Wie wird aus "Prüfe PR-001" die Auftrags-ID, und was ändert sich am Code zwischen lokal und Cloud?
 2. Warum eine Factory pro Request statt eines gemeinsam genutzten Workflows?
 3. Welche IDs liefert der Workflow, welche der Responses-Dienst?
 4. Was wird gepackt, was bleibt privat, welche Identität läuft in der Cloud?

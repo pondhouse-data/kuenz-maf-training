@@ -1,7 +1,6 @@
 """Einstiegspunkt des offiziellen Basic-Responses-Samples, mit unseren Instructions.
 
-Lokal vom Repository-Hauptordner: uv run python 02-tools/main.py
-Die direkte Übung mit Streaming bleibt in agent.py.
+Starten: Run and Debug → Debug Local Agent HTTP Server → F5.
 """
 import os
 

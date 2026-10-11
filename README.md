@@ -8,13 +8,13 @@ fertig wird, kannst du im nächsten Ordner weiterarbeiten. Im Teilnehmerprojekt 
 
 | Ordner | Aufgabe | Tag |
 | --- | --- | --- |
-| `01-hello-world/` | Offizielles Basic-Responses-Projekt erzeugen, Paketversionen pinnen, Agent und Streaming verstehen | 2 |
+| `01-hello-world/` | Offizielles Basic-Responses-Projekt erzeugen, Paketversionen pinnen, im Agent Inspector testen | 2 |
 | [`02-tools`](02-tools/README.md) | Tools für Prüfauftrag, Katalog und Spezifikation | 2 |
-| [`03-session-middleware`](03-session-middleware/README.md) | Session und sichtbare Toolaufrufe | 2 |
-| [`04-extraktion`](04-extraktion/README.md) | Angaben in einem festen Schema extrahieren | 2 |
-| [`05-workflow`](05-workflow/README.md) | Extrahieren, Regeln vergleichen, Ergebnis ausgeben | 2 |
-| [`06-hitl`](06-hitl/README.md) | Optional: menschliche Entscheidung je Klärungspunkt | 3 |
-| [`07-hosting`](07-hosting/README.md) | Prüfworkflow über VS Code in Foundry bereitstellen | 3 |
+| [`03-session-middleware`](03-session-middleware/README.md) | Gesprächsverlauf und sichtbare Toolaufrufe | 2 |
+| [`04-extraktion`](04-extraktion/README.md) | Angaben in einem festen Schema extrahieren, als Tool des Prüfagenten | 2 |
+| [`05-workflow`](05-workflow/README.md) | Extrahieren, Regeln vergleichen, Ergebnis ausgeben; der Server startet den Workflow | 2 |
+| [`06-hitl`](06-hitl/README.md) | Optional: menschliche Entscheidung je Klärungspunkt, im Terminal | 3 |
+| [`07-hosting`](07-hosting/README.md) | Denselben Prüfworkflow über VS Code in Foundry bereitstellen | 3 |
 
 ## Umgebung öffnen
 
@@ -75,57 +75,38 @@ Anmeldeweg **Yes** → **Copy & Continue**; den Gerätecode mit dem Trainingskon
    Ändere die Instructions in `main.py`, speichere, starte neu und vergleiche.
    Agent Inspector allein startet den Server nicht. Stoppe den Debug-Lauf vor dem nächsten Serverstart.
 
-### Direkten Aufruf und Streaming verstehen
+### Agent und Streaming verstehen
 
-Erzeuge mit Copilot eine kleine `agent.py` im Workspace-Hauptordner01 (neben `azure.yaml`). So bleibt der direkte
-Python-Aufruf für Session-, Middleware- und Workflowübungen verständlich.
-
-```text
-Erzeuge agent.py im Workspace-Hauptordner01, auf Basis von src/agent-framework-agent-basic-responses/main.py.
-Verwende Agent und FoundryChatClient, Entra-Anmeldung und load_dotenv()
-für die vorhandene .env im übergeordneten Trainings-Hauptordner.
-Modellname: AZURE_AI_MODEL_DEPLOYMENT_NAME.
-Name HelloAgent, Instructions: Du bist ein hilfreicher Assistent. Antworte kurz und auf Deutsch.
-Eine async main()-Funktion liest die Frage aus sys.argv oder verwendet
-"Was ist ein Agent? Antworte in zwei Sätzen.". Rufe await agent.run(question) auf
-und gib response.text aus. main.py und die Hosting-Konfiguration bleiben erhalten.
-Erkläre Client, Agent, Instructions und run().
-```
-
-Zurück im Repository-Hauptordner:
-
-```bash
-uv run python 01-hello-world/agent.py
-uv run python 01-hello-world/agent.py "Was ist ein Tool bei einem Agenten?"
-```
-
-Danach:
+Im Agent Inspector erscheint die Antwort Stück für Stück. Unter **Events** siehst du die einzelnen
+`response.output_text.delta`-Ereignisse: Der Server streamt die Antwort, sobald das Modell sie erzeugt.
 
 ```text
-Ändere nur agent.py auf Streaming (agent-framework-core1.21.0):
-async for update in agent.run(question, stream=True):
-    print(update.text, end="", flush=True)
-Zum Schluss ein Zeilenumbruch. Erkläre den Unterschied zum bisherigen Aufruf.
+Erkläre mir #file:src/agent-framework-agent-basic-responses/main.py Zeile für Zeile:
+Client, Agent, Instructions und ResponsesHostServer. Wie kommt eine Frage aus dem Agent Inspector
+zum Agenten, und wo wird die Antwort gestreamt?
 ```
 
-Lies den Code, teste ihn und beobachte, wann die Antwort erscheint.
-Öffne anschließend wieder den Repository-Hauptordner. Für02 und alle weiteren lokalen Übungen
-verwendet `uv run` die root `.venv` und die root `.env`. Wähle in VS Code wieder
-den root Interpreter `<Repository-Hauptordner>/.venv/bin/python`. Der vorgegebene Checkpoint02 enthält den
-fertigen direkten Aufruf aus01 plus den Basic-Hosting-Einstiegspunkt; die Fachübungen arbeiten mit `agent.py`.
+Stoppe den Debug-Lauf. Öffne anschließend wieder den Repository-Hauptordner und wähle in VS Code
+den root Interpreter `<Repository-Hauptordner>/.venv/bin/python`. Ab02 verwendet jeder Ordner die
+root `.venv` und die root `.env`.
 
 ## Ab02 · Lokale Übungen
 
-Alle Befehle laufen im **Repository-Hauptordner**. `uv run` verwendet automatisch die dortige `.venv`; eine Aktivierung ist nicht nötig:
+Jeder Ordner von02 bis05 und07 hat ein `main.py` nach dem Muster des offiziellen Samples.
+Gestartet wird wie in01: **Run and Debug → Debug Local Agent HTTP Server → F5**, dann den
+Übungsordner auswählen. Der Server startet auf Port 8088, Agent Inspector öffnet sich.
+Stoppe den Debug-Lauf, bevor du einen anderen Ordner startest.
+
+Tests laufen im **Repository-Hauptordner**. `uv run` verwendet automatisch die dortige `.venv`; eine Aktivierung ist nicht nötig:
 
 ```bash
-uv run python 02-tools/agent.py
 uv run pytest 03-session-middleware
 ```
 
 Teste je Ordner separat: die Checkpoints besitzen gleichnamige Module.
+`06-hitl` läuft im Terminal: Dort beantwortest du die Rückfragen des Workflows mit der Tastatur.
 `07-hosting/` ist zusätzlich ein vollständiger Deployment-Quellordner mit eigenen
-`requirements.txt`, `azure.yaml` und einer Kopie von `daten/`; sein Hosting-Einstieg wird erst in Ü13 gebaut.
+`requirements.txt`, `azure.yaml` und einer Kopie von `daten/`.
 
 ## Daten und Aufbewahren
 

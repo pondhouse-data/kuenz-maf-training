@@ -1,19 +1,14 @@
 """Schritt 4: Das Modell liest die Spezifikation und liefert Angaben in einem festen Schema.
 
-Starten im Projekt-Hauptordner:
-    uv run python 05-workflow/extraktion.py 1
-    uv run python 05-workflow/extraktion.py 2
+Der Prüfagent in main.py ruft die Extraktion als Tool extrahiere_angaben auf.
 """
 
-import asyncio
 import os
-import sys
-from typing import Literal
+from typing import Annotated, Literal
 
-from agent_framework import Agent
+from agent_framework import Agent, tool
 from agent_framework.foundry import FoundryChatClient
-from azure.identity.aio import AzureCliCredential
-from dotenv import load_dotenv
+from azure.identity import DefaultAzureCredential
 from pydantic import BaseModel, Field
 
 from tools import lade_anforderungskatalog, lade_spezifikation
@@ -70,26 +65,20 @@ def zitat_im_text(fundstelle: Fundstelle, spezifikation: dict) -> bool:
     return False
 
 
-async def main() -> None:
-    load_dotenv()
-    endpoint = os.getenv("FOUNDRY_PROJECT_ENDPOINT")
-    model = os.getenv("AZURE_AI_MODEL_DEPLOYMENT_NAME")
-    if not endpoint or not model:
-        raise SystemExit(".env fehlt oder ist leer. Führe aus: cp .env.example .env")
-
-    credential = AzureCliCredential()
-    client = FoundryChatClient(project_endpoint=endpoint, model=model, credential=credential)
-    agent = Agent(client=client, name="Extraktion", instructions=ANWEISUNG)
-
-    version = sys.argv[1] if len(sys.argv) > 1 else "1"
-    extraktion = await extrahiere(agent, version)
-    spezifikation = lade_spezifikation(version)
-    for angabe in extraktion.angaben:
-        print(f"{angabe.requirement_id}: {angabe.begruendung}")
-        for f in angabe.fundstellen:
-            pruefung = "im Text" if zitat_im_text(f, spezifikation) else "NICHT im Text"
-            print(f"   §{f.abschnitt} „{f.zitat}“ → {f.werte} ({pruefung})")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+@tool
+async def extrahiere_angaben(
+    document_version: Annotated[str, Field(description="Version der Spezifikation SPEC-001: 1 oder 2")],
+) -> list[dict] | dict:
+    """Liest die Spezifikation SPEC-001 in einer Version und liefert zu R-01 bis R-06 die Fundstellen
+    mit Abschnitt, Zitat und Werten. im_text sagt, ob das Zitat wirklich im genannten Abschnitt steht."""
+    spezifikation = lade_spezifikation(document_version)
+    if "fehler" in spezifikation:
+        return spezifikation
+    client = FoundryChatClient(project_endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
+                               model=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"], credential=DefaultAzureCredential())
+    extraktion = await extrahiere(Agent(client=client, name="Extraktion", instructions=ANWEISUNG), document_version)
+    return [
+        {**angabe.model_dump(),
+         "fundstellen": [{**f.model_dump(), "im_text": zitat_im_text(f, spezifikation)} for f in angabe.fundstellen]}
+        for angabe in extraktion.angaben
+    ]

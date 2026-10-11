@@ -5,6 +5,7 @@ festen Schema** liefern: je Anforderung die Fundstellen mit Abschnitt, wörtlich
 Zitat und Wert. Ob eine Anforderung erfüllt ist, entscheidet danach der Code (Schritt 05).
 
 **Ausgangspunkt:** der fertige Stand aus 03.
+Starten: **Run and Debug → Debug Local Agent HTTP Server → F5** → `04-extraktion`.
 
 ## Schritt 1 · Das Schema und die Extraktion
 
@@ -20,14 +21,15 @@ mit Begründung.
   Werten alle Fundstellen liefern, nichts erfinden. Werte als Liste ohne Einheit, z. B. ["DE","EN"], ["41"], ["1.4"], ["-20","40"].
 - Das Modell soll gründlich lesen (reasoning effort medium).
 - Prüfe im Code, ob jedes Zitat wirklich im genannten Abschnitt steht.
-- Aufruf mit der Version als Argument. Gib je Anforderung die Fundstellen aus, jeweils mit "im Text" oder "NICHT im Text".
-Baue den Agenten so auf wie in #file:04-extraktion/agent.py.
+- Stelle die Extraktion als async Tool extrahiere_angaben(document_version) mit @tool bereit. Es liefert
+  je Anforderung die Fundstellen, jede mit im_text true oder false. Eine unbekannte Version liefert den
+  Fehler von lade_spezifikation.
+Baue den Client so auf wie in #file:04-extraktion/main.py und gib das Tool dort dem PruefAgent.
 ```
 
-```bash
-uv run python 04-extraktion/extraktion.py 1
-uv run python 04-extraktion/extraktion.py 2
-```
+Neu starten und im Agent Inspector fragen: „Welche Fundstellen hat Version 2 zu R-04?“ und
+„Welche Fundstellen hat Version 1 zu R-05?“. Klapp den Aufruf von `extrahiere_angaben` auf:
+Dort steht das ganze Ergebnis der Extraktion, je Fundstelle mit `im_text`.
 
 Erwartet für Version 2 bei R-04 **zwei** Fundstellen: §4.1 mit 30 ms und §A.1 mit 80 ms.
 Die Spezifikation widerspricht sich hier. Für Version 1 nennt das Modell bei R-05 vermutlich
@@ -38,7 +40,7 @@ Die Spezifikation widerspricht sich hier. Für Version 1 nennt das Modell bei R-
 1. **Was ist neu?** Wo steht das Schema, wo wird es dem Modell übergeben?
 2. **Welche Eingaben?** Was steht im Prompt, was in den Instructions des Agenten?
 3. **Was kommt zurück?** Was ist `response.value`, was `response.text`?
-4. **Was passiert bei Fehlern?** Was zeigt die Ausgabe, wenn das Modell ein Zitat erfindet?
+4. **Was passiert bei Fehlern?** Was steht im Toolergebnis, wenn das Modell ein Zitat erfindet?
 
 Das Schema erzwingt die **Form** der Antwort, nicht ihre **Wahrheit**. Deshalb prüft der Code die Zitate.
 

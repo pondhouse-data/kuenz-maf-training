@@ -4,31 +4,28 @@ Dein Agent aus 01 kennt nur, was das Modell weiß. Hier bekommt er **Tools**:
 Python-Funktionen, die er aufrufen darf, um Daten zu laden. Danach beantwortet
 er Fragen zu Prüfaufträgen, Anforderungen und zur Spezifikation aus unseren Daten.
 
-**Ausgangspunkt:** `agent.py` ist das fertige Hello World aus 01.
+**Ausgangspunkt:** `main.py` ist das fertige Hello World aus 01.
 **Daten:** im Ordner `daten/` im Projekt-Hauptordner (synthetisch).
 
-Alle Befehle im Projekt-Hauptordner. Für die Prompts öffnest du Copilot Chat
-(Sprechblase oben). `#file:…` hängt eine Datei an, damit Copilot sie sieht.
+Starten: **Run and Debug → Debug Local Agent HTTP Server → F5** → `02-tools`. Fragen stellst du im
+Agent Inspector. Nach jeder Codeänderung den Debug-Lauf stoppen und neu starten.
+Für die Prompts öffnest du Copilot Chat (Sprechblase oben). `#file:…` hängt eine Datei an, damit Copilot sie sieht.
 
 ## Schritt 1 · Ein Hello-World-Tool
 
 Prompt an Copilot:
 
 ```text
-Füge in #file:02-tools/agent.py ein Tool aktuelle_uhrzeit hinzu, das die aktuelle Uhrzeit
+Füge in #file:02-tools/main.py ein Tool aktuelle_uhrzeit hinzu, das die aktuelle Uhrzeit
 als Text "HH:MM" zurückgibt. Verwende den Decorator @tool aus agent_framework
 (Microsoft Agent Framework 1.21) und einen kurzen Docstring. Übergib das Tool dem Agenten mit tools=[...].
 ```
 
-Starten und vergleichen:
+Neu starten und im Agent Inspector vergleichen: „Wie spät ist es?“ und „Was ist ein Agent?“
 
-```bash
-uv run python 02-tools/agent.py "Wie spät ist es?"
-uv run python 02-tools/agent.py "Was ist ein Agent?"
-```
-
-Bei der ersten Frage ruft das Modell das Tool auf, bei der zweiten nicht. Das Modell
-entscheidet anhand von Name und Docstring, ob es ein Tool braucht.
+Bei der ersten Frage ruft das Modell das Tool auf, bei der zweiten nicht. Der Inspector zeigt den
+Toolaufruf mit Argumenten und Ergebnis direkt im Chat. Das Modell entscheidet anhand von Name und
+Docstring, ob es ein Tool braucht.
 
 ## Schritt 2 · Die drei Daten-Tools
 
@@ -43,18 +40,20 @@ mit @tool aus agent_framework. Die Daten liegen im Ordner daten im Projekt-Haupt
 - lade_spezifikation(document_version) lädt daten/spezifikation_v1.json bzw. daten/spezifikation_v2.json.
 Beschreibe jeden Parameter und jedes Tool mit einem Docstring.
 Gibt es eine ID oder Version nicht, gib {"fehler": "..."} zurück statt eine Ausnahme zu werfen.
-Halte den Code einfach. Importiere die Tools in 02-tools/agent.py, übergib alle vier dem Agenten und
-ändere die Instructions: Fragen nur mit den Tools beantworten, bei einem Fehler nichts erfinden.
+Halte den Code einfach. Importiere die Tools in 02-tools/main.py, übergib alle vier dem Agenten,
+nenne ihn PruefAgent und ändere die Instructions: Fragen nur mit den Tools beantworten,
+bei einem Fehler nichts erfinden.
 ```
 
-```bash
-uv run python 02-tools/agent.py "Was gilt für R-03 bei A-100?"
-uv run python 02-tools/agent.py "Welche Spezifikation gehört zu PR-201?"
-uv run python 02-tools/agent.py "Was steht in PR-999?"
-```
+Neu starten und im Agent Inspector fragen:
+
+- „Was gilt für R-03 bei A-100?“
+- „Welche Spezifikation gehört zu PR-201?“
+- „Was steht in PR-999?“
 
 Erwartet: R-03 verlangt Protokollversion 2.0 · PR-201 gehört zu SPEC-001 Version 2 ·
-PR-999 gibt es nicht. Der Wortlaut variiert.
+PR-999 gibt es nicht. Der Wortlaut variiert. Klapp die Toolaufrufe auf: Welche Argumente hat
+das Modell übergeben, was kam zurück?
 
 ## Schritt 3 · Ein paar Tests
 

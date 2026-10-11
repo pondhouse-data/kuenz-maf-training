@@ -5,6 +5,7 @@ Der Workflow **hält an**, fragt je Klärungspunkt nach und läuft mit den Antwo
 Die Entscheidung des Menschen wird getrennt vom KI-Befund gespeichert.
 
 **Ausgangspunkt:** der fertige Prüfworkflow aus 05.
+Diese Übung läuft im Terminal: Der Workflow stellt seine Fragen dort, du antwortest mit der Tastatur.
 
 ## Schritt 1 · Den Prüfer einbauen
 
@@ -14,8 +15,10 @@ jeden Klärungspunkt.
 - Neuer Schritt Pruefer nach dem Vergleich: Er fragt für jeden Befund, der nicht "erfüllt" ist, mit
   ctx.request_info nach und läuft mit @response_handler weiter, sobald alle Antworten da sind.
 - Die Entscheidungen kommen getrennt von den Befunden als "entscheidungen" ins Ergebnis.
-- Im Terminal: zu jeder Frage Befund und Fundstellen zeigen, die Entscheidung abfragen und den Workflow
-  mit den Antworten fortsetzen.
+- Eine async main() mit der Auftrags-ID als Argument: Workflow aus erstelle_workflow() mit
+  [Message("user", ["Prüfe <ID>"])] streamen und die request_info-Ereignisse nach request_id sammeln.
+  Zu jeder Frage Befund und Fundstellen zeigen und die Entscheidung mit input() abfragen.
+  Danach denselben Workflow mit workflow.run(responses=antworten) fortsetzen und das Ergebnis als JSON ausgeben.
 ```
 
 ```bash
