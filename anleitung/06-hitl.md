@@ -29,7 +29,9 @@ uv run python workflow.py PR-101
 
 Nimm statt PR-101 deinen eigenen Prüfauftrag (PR-101 bis PR-105). Erwartet: zwei Fragen
 (R-03 und R-05) und im Ergebnis deine beiden Entscheidungen unter `entscheidungen`.
-Starte danach mit F5 und sende im Agent Inspector „Prüfe PR-001“: Der Prüfworkflow antwortet wie in Ü11 B.
+Prüf danach, dass der Prüfworkflow hinter `main.py` unverändert ist; genau ihn stellst du in Ü13 bereit:
+F5, im Agent Inspector „Prüfe PR-001“. Erwartet wie in Ü11 B: Klärungspunkte R-03 und R-05, keine Rückfrage,
+kein `entscheidungen`.
 
 ## Code verstehen
 
