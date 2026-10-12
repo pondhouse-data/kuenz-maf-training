@@ -17,14 +17,26 @@ An Tag 3 stellst du genau dieses Projekt in Ü13 als Hosted Agent in Foundry ber
 Jede Anforderung im Katalog hat eine `vergleichsregel` (siehe `daten/anforderungskatalog.json`).
 
 ```text
-Lege regeln.py neben #file:main.py an: einfacher Code ohne Modellaufruf. Eine Funktion bewerte vergleicht eine Angabe
-aus #file:extraktion.py mit ihrer Anforderung aus #file:daten/anforderungskatalog.json und liefert
-den Befund: Status "erfüllt", "abweichend" oder "unklar" mit einer kurzen Begründung als Satz.
-- Es zählen nur Fundstellen, deren Zitat wirklich im genannten Abschnitt steht (Leerzeichen und Minuszeichen
-  tolerant vergleichen) und deren Abschnitt keinen Ausschlussbegriff der Anforderung enthält.
-- Keine gültige Fundstelle oder unterschiedliche Werte → "unklar".
-- Sonst gilt die vergleichsregel der Anforderung. Bei fachliche_bewertung zählt der Vorschlag des Modells.
-- Versionsnummern als Zahlen vergleichen: 2.10 ist größer als 2.9.
+Lege regeln.py neben #file:main.py an: einfacher Python-Code ohne Modellaufruf und ohne Klassen.
+Hauptfunktion: bewerte(anforderung: dict, angabe: dict, spezifikation: dict) -> dict
+- anforderung: ein Eintrag aus "requirements" in #file:daten/anforderungskatalog.json
+- angabe: ein Eintrag aus "angaben", wie ihn #file:extraktion.py liefert (fundstellen mit abschnitt, zitat,
+  werte als Liste von Texten; bewertung_vorschlag)
+- spezifikation: Inhalt von #file:daten/spezifikation_v1.json (Liste "abschnitte" mit abschnitt, titel, text)
+Rückgabe: {"requirement_id", "status": "erfüllt" | "abweichend" | "unklar", "begruendung": ein kurzer Satz,
+"fundstellen": nur die gültigen Fundstellen}
+Prüfe in dieser Reihenfolge:
+1. Gültig ist eine Fundstelle nur, wenn ihr zitat im text ihres Abschnitts steht (Leerzeichen und "−"/"-"
+   tolerant vergleichen) und Titel und Text des Abschnitts keinen Begriff aus
+   anforderung["anwendbarkeit"]["ausschlussbegriffe"] enthalten (falls vorhanden).
+2. Keine gültige Fundstelle → "unklar".
+3. typ "fachliche_bewertung" → bewertung_vorschlag der Angabe (fehlt er: "unklar").
+4. Gültige Fundstellen mit unterschiedlichen werte → "unklar".
+5. Sonst nach vergleichsregel["typ"]: teilmenge (alle werte in "erlaubt"), maximum (Zahl ≤ grenzwert),
+   version_mindestens (Version ≥ grenzwert, Teile als Zahlen: 2.10 ist größer als 2.9),
+   bereich_innerhalb (werte = [Minimum, Maximum], beide innerhalb min und max; "+" und "−" beachten).
+   Passt es → "erfüllt", sonst "abweichend".
+Halte den Code kurz.
 ```
 
 ```text
