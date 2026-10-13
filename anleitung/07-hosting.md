@@ -28,10 +28,15 @@ Agenten; deine lokale Anmeldung wird nicht hochgeladen.
 6. **Playground**: „Prüfe PR-001“, „Prüfe PR-201“, „Prüfe PR-999“ testen.
    Notiere Agentname, getestete Version, Endpunkt, response_id und run_id.
 
-Eine neue Version wird mit **Existing agent** bereitgestellt. Die Versionsauswahl im Playground
-ändert nur dessen Testaufrufe: **Automatic** und der spätere Dispatcher müssen ebenfalls den
-vorgesehenen Stand liefern. Falls Automatic eine alte Version liefert, Endpoint-Routing
-im Foundry-Portal auf die neue Version setzen und erneut prüfen.
+**Code geändert?** Erneut deployen, unter **Basics** aber **Existing agent** und deinen Agentnamen wählen.
+Foundry legt dann eine neue Version an; die Nummer steht unter **Details**.
+
+Im Playground wählst du oben die Version:
+
+- **Automatic** ruft den Agenten so auf wie jeder andere Aufrufer, später auch der Dispatcher.
+- Eine Nummer (z. B. `3`) ruft genau diese Version auf, aber nur hier im Playground.
+
+Teste nach jedem Deployment unter **Automatic**. Welche Version geantwortet hat, zeigt Schritt 3 unter `agent`.
 
 ## Schritt 3 · Gespeicherte Antwort mit dem SDK abrufen
 
@@ -60,6 +65,13 @@ Prüfe dieselbe response_id, dasselbe JSON und dieselbe run_id. Im gespeicherten
 Deployment vergleichen. Technisch completed ist
 noch keine menschliche Freigabe. Danach folgt die Agent-Evaluation im Toolkit/Foundry-Portal
 und die Anbindung des Dispatchers.
+
+## Wenn es nicht klappt
+
+| Symptom | Lösung |
+|---|---|
+| Der Agent startet nicht. Im Log steht `IndexError` oder `FileNotFoundError` bei einer Zeile mit `Path(__file__)` und `daten`. | Dein Code sucht `daten/` außerhalb des Projektordners, z. B. mit `parents[2]`. In der Cloud gibt es nur den Projektordner, er liegt unter `/app`. In `tools.py` (und jedem anderen Modul, das Daten lädt) `Path(__file__).resolve().parent / "daten"` verwenden. `daten/` muss neben `main.py` liegen, sonst im Projektordner `cp -r /workspaces/kuenz-maf-training/daten .` ausführen. Lokal mit F5 testen, dann mit **Existing agent** neu deployen. |
+| Unter **Automatic** antwortet die alte Version. | Dem Trainer melden. Das Routing des Endpunkts muss im Foundry-Portal auf die neue Version gesetzt werden. Eine Nummer im Playground zu wählen reicht nicht, der Dispatcher ruft weiter die alte Version auf. |
 
 ## Code verstehen
 
