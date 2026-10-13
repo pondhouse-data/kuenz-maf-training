@@ -10,7 +10,7 @@ er Fragen zu Prüfaufträgen, Anforderungen und zur Spezifikation aus unseren Da
 ## Schritt 0 · Daten ins Projekt kopieren
 
 ```bash
-cp -r /workspaces/kuenz-maf-training/daten .
+cp -r /workspaces/kuenz-maf-training/daten /workspaces/kuenz-maf-training/pruefagent/src/agent-framework-agent-basic-responses/
 ```
 
 Die Daten sind synthetisch. Sie liegen jetzt in `daten/` neben `main.py` und werden später mit bereitgestellt.
