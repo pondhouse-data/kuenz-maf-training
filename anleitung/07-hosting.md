@@ -87,7 +87,6 @@ gespeicherte Antwort aus Foundry, ohne neu zu prüfen. So siehst du, welche Vers
 | Symptom | Lösung |
 |---|---|
 | Der Agent startet nicht. Im Log steht `IndexError` oder `FileNotFoundError` bei einer Zeile mit `Path(__file__)` und `daten`. | Dein Code sucht `daten/` außerhalb des Projektordners, z. B. mit `parents[2]`. In der Cloud gibt es nur den Projektordner, er liegt unter `/app`. In `tools.py` (und jedem anderen Modul, das Daten lädt) `Path(__file__).resolve().parent / "daten"` verwenden. `daten/` muss neben `main.py` liegen. Liegt es in `pruefagent/daten` (Ü9 Schritt 0 im Ordner `pruefagent` ausgeführt), verschieben: `mv /workspaces/kuenz-maf-training/pruefagent/daten /workspaces/kuenz-maf-training/pruefagent/src/agent-framework-agent-basic-responses/`. Lokal mit F5 testen, dann mit **Existing agent** neu deployen. |
-| Unter **Automatic** antwortet die alte Version. | Dem Trainer melden. Das Routing des Endpunkts muss im Foundry-Portal auf die neue Version gesetzt werden. Eine Nummer im Playground zu wählen reicht nicht, der Dispatcher ruft weiter die alte Version auf. |
 
 ## Code verstehen
 
