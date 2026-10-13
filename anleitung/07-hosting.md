@@ -39,31 +39,45 @@ Welche Version geantwortet hat, zeigt Schritt 3 unter `agent`.
 
 ## Schritt 3 · Gespeicherte Antwort mit dem SDK abrufen
 
-Ein neuer Playground-Aufruf startet eine neue Prüfung. Ein GET mit der response_id liest
-das gespeicherte Resultat ohne neue Prüfung. Aus dem Projekt-Client direkt abrufen;
-Agentname muss zu dem Endpunkt passen, der die Response erzeugt hat:
+Jeder Aufruf im Playground startet eine neue Prüfung. Mit der response_id liest du dagegen eine
+gespeicherte Antwort aus Foundry, ohne neu zu prüfen. So siehst du, welche Version geantwortet hat.
 
-```python
-import os
-from azure.ai.projects import AIProjectClient
-from azure.identity import DefaultAzureCredential
-from dotenv import load_dotenv
+1. Im Projektordner `pruefagent/src/agent-framework-agent-basic-responses` die Datei `abruf.py`
+   anlegen und diesen Code einfügen:
 
-load_dotenv(".env")
-with AIProjectClient(endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
-                     credential=DefaultAzureCredential(), allow_preview=True) as project:
-    with project.get_openai_client(agent_name="kuenz-pruefung-trainingNN") as client:
-        response = client.responses.retrieve("response_id-aus-dem-Playground")
-        print(response.id, response.status, response.output_text)
-        print(response.model_dump().get("agent"))  # tatsächlicher Agentname und Version
-```
+   ```python
+   import os
+   from azure.ai.projects import AIProjectClient
+   from azure.identity import DefaultAzureCredential
+   from dotenv import load_dotenv
 
-Den kurzen Code führst du im Projektordner in `uv run python` aus.
-Prüfe dieselbe response_id, dasselbe JSON und dieselbe run_id. Im gespeicherten GET nennt
-`agent` den tatsächlichen Agentnamen und die Version; diese Version mit dem beabsichtigten
-Deployment vergleichen. Technisch completed ist
-noch keine menschliche Freigabe. Danach folgt die Agent-Evaluation im Toolkit/Foundry-Portal
-und die Anbindung des Dispatchers.
+   load_dotenv(".env")
+   with AIProjectClient(endpoint=os.environ["FOUNDRY_PROJECT_ENDPOINT"],
+                        credential=DefaultAzureCredential(), allow_preview=True) as project:
+       with project.get_openai_client(agent_name="kuenz-pruefung-trainingNN") as client:
+           response = client.responses.retrieve("response_id-aus-dem-Playground")
+           print(response.id, response.status, response.output_text)
+           print(response.model_dump().get("agent"))  # tatsächlicher Agentname und Version
+   ```
+
+2. Im Code zwei Werte ersetzen:
+   - `kuenz-pruefung-trainingNN` durch deinen Agentnamen aus Schritt 2,
+   - `response_id-aus-dem-Playground` durch eine response_id, die du in Schritt 2 notiert hast
+     (beginnt mit `caresp_`).
+3. Datei speichern und im Terminal ausführen:
+
+   ```bash
+   cd /workspaces/kuenz-maf-training/pruefagent/src/agent-framework-agent-basic-responses
+   uv run python abruf.py
+   ```
+
+4. Ausgabe prüfen:
+   - Erste Zeile: dieselbe response_id, Status `completed` und dasselbe JSON wie im Playground,
+     mit derselben run_id.
+   - Zweite Zeile: `agent` mit deinem Agentnamen und der Version. Das muss die Version sein,
+     die du zuletzt deployt hast.
+
+`completed` heißt nur, dass der Lauf technisch fertig ist. Die fachliche Freigabe macht weiterhin ein Mensch.
 
 ## Wenn es nicht klappt
 
