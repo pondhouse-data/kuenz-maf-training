@@ -27,6 +27,9 @@ Agenten; deine lokale Anmeldung wird nicht hochgeladen.
 5. Unter **My Resources → Agents → Hosted Agent → Details** den Laufstatus abwarten.
 6. **Playground**: „Prüfe PR-001“, „Prüfe PR-201“, „Prüfe PR-999“ testen.
    Notiere Agentname, getestete Version, Endpunkt, response_id und run_id.
+   Die response_id (beginnt mit `caresp_`) öffnest du mit **View run info** unten rechts an der Antwort:
+
+   ![View run info an der Antwort im Playground](bilder/playground-run-info.png)
 
 **Code geändert?** Erneut deployen, unter **Basics** aber **Existing agent** und deinen Agentnamen wählen.
 Foundry legt dann eine neue Version an (`v2`, `v3`, …).
@@ -62,8 +65,8 @@ gespeicherte Antwort aus Foundry, ohne neu zu prüfen. So siehst du, welche Vers
 
 2. Im Code zwei Werte ersetzen:
    - `kuenz-pruefung-trainingNN` durch deinen Agentnamen aus Schritt 2,
-   - `response_id-aus-dem-Playground` durch eine response_id, die du in Schritt 2 notiert hast
-     (beginnt mit `caresp_`).
+   - `response_id-aus-dem-Playground` durch die response_id aus Schritt 2 (**View run info**,
+     beginnt mit `caresp_`).
 3. Datei speichern und im Terminal ausführen:
 
    ```bash
