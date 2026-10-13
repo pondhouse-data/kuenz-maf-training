@@ -29,14 +29,13 @@ Agenten; deine lokale Anmeldung wird nicht hochgeladen.
    Notiere Agentname, getestete Version, Endpunkt, response_id und run_id.
 
 **Code geändert?** Erneut deployen, unter **Basics** aber **Existing agent** und deinen Agentnamen wählen.
-Foundry legt dann eine neue Version an; die Nummer steht unter **Details**.
+Foundry legt dann eine neue Version an (`v2`, `v3`, …).
 
-Im Playground wählst du oben die Version:
+Wähle im Playground oben die neue Version **aktiv aus**. Sonst testest du weiter die alte Version.
 
-- **Automatic** ruft den Agenten so auf wie jeder andere Aufrufer, später auch der Dispatcher.
-- Eine Nummer (z. B. `3`) ruft genau diese Version auf, aber nur hier im Playground.
+![Versionsauswahl im Hosted agent playground](bilder/playground-version.png)
 
-Teste nach jedem Deployment unter **Automatic**. Welche Version geantwortet hat, zeigt Schritt 3 unter `agent`.
+Welche Version geantwortet hat, zeigt Schritt 3 unter `agent`.
 
 ## Schritt 3 · Gespeicherte Antwort mit dem SDK abrufen
 
