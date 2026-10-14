@@ -13,9 +13,9 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 
 ## Grenzen
 
-- Dateien nur im Workspace aus meiner Nachricht lesen und schreiben. Kein Git-Commit, kein Git-Push. `pac copilot pack` gehört nicht zu diesem Weg; Transport ist `pac copilot push --project-dir <Workspace>`.
+- Lies `AGENTS.md` und diesen Auftrag im Repo-Wurzelverzeichnis. Schreibe und lies Dateien sonst nur im Workspace aus meiner Nachricht. Anleitungen deines eigenen Agent-Clients darfst du lesen; andere Trainings-, Lösungs- oder Nachweisdateien sind keine Quelle. Kein Git-Commit, kein Git-Push. `pac copilot pack` gehört nicht zu diesem Weg; Transport ist `pac copilot push --project-dir <Workspace>`.
 - In Dev nur meinen eigenen Agenten (Schemaname aus meiner Nachricht) pushen und pullen. Per Dataverse-Web-API darfst du lesen: eigene Objekte dieses Agenten, meine Verbindungsreferenzen und die Metadaten der Tabelle `kt_freigabe`. Token intern über `az account get-access-token --resource https://kuenztraining2026.crm4.dynamics.com`; Token nie ausgeben oder speichern.
-- Ändern darfst du nur: deine zwei neuen Flows aktivieren (statecode 1, statuscode 2), ihre Fehlermeldungen lesen und sie meiner Solution hinzufügen (`pac solution add-solution-component`, Komponententyp 29). Keine Verbindungen anlegen oder ändern, keine fremden Objekte, keine Zeilen direkt schreiben, nichts in Foundry.
+- Ändern darfst du nur: deine neuen Flows aktivieren (statecode 1, statuscode 2), ihre Fehlermeldungen lesen und sie meiner Solution hinzufügen (`pac solution add-solution-component`, Komponententyp 29). Hast du wegen einer nicht übernommenen Definition einen Flow mit neuer UUID ersetzt, darfst du die ersetzte, **von dir in diesem Auftrag erzeugte** Version deaktivieren und löschen, sobald die neue zurückgelesen und aktiv ist; vorher prüfen, dass die UUID nicht schon beim Klonen da war. Ihren alten Wrapper entfernst du ebenfalls. Keine Verbindungen anlegen oder ändern, keine fremden Objekte, keine Zeilen direkt schreiben, nichts in Foundry.
 - Der bestehende Flow „Rückruf anlegen“ und seine Tool-Registrierung bleiben unverändert. Er liegt im Clone unter `workflows/` und `actions/` und ist dein Formatbeispiel für einen nativen Agent Flow: `workflow.json`, `metadata.yml`, TaskDialog-Wrapper, `host.apiId`/`operationId`/`connectionName`, Response-Schema.
 
 ## Zuerst lesen
@@ -33,7 +33,7 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 - Danach echte Ja/Nein-Bestätigung: als Text erfassen (StringPrebuiltEntity), mit Trim/Lower normalisieren und ausdrücklich auf „ja“ und „nein“ verzweigen. BooleanPrebuiltEntity erkennt deutsches „Nein“ nicht zuverlässig.
 - Nein: kurze Abbruchmeldung, kein Flow-Aufruf, Dialog beenden.
 - Ja: genau einmal den Flow „Klärungspunkte freigeben <Vorname>“ aufrufen (InvokeFlowAction mit `input.binding` und skalarem `output.binding`) mit den sechs Globals, der Prüfer-Adresse und den Klärungspunkten. `Global.approval_row_id` aus der Antwort setzen.
-- Nur wenn der Flow „Freigabe angefragt“ und eine Zeilen-ID liefert: Erfolg melden mit review_id, run_id, response_id und Hinweis auf Teams → Genehmigungen. Sonst die echte Rückgabe als Fehler zeigen, nie eine Erfolgsmeldung erfinden. Danach alle Dialoge beenden.
+- Nur wenn der Flow `status` = „Freigabe angefragt“ und eine nicht leere `approval_row_id` zurückgibt, sende genau diese Nachricht mit allen fünf Werten sichtbar: `Freigabe angefragt. Zeilen-ID: {Global.approval_row_id}. Prüfauftrag: {Global.review_id}. run_id: {Global.run_id}. response_id: {Global.response_id}. Der Prüfer entscheidet in Teams unter Genehmigungen.` Ein gesetzter Global allein reicht nicht; die Werte müssen im Testchat erscheinen. Sonst die echte Rückgabe als Fehler zeigen, nie eine Erfolgsmeldung erfinden. Danach alle Dialoge beenden.
 
 ## 2. Agent Flow „Klärungspunkte freigeben <Vorname>“
 
@@ -93,6 +93,33 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 - Beide Flows: `statecode` 1 und `statuscode` 2, `clientdata` entspricht der lokalen Datei, beide in meiner Solution (Komponententyp 29).
 - Beide Topics: die importierten Bedingungen und Werte zurücklesen (Bot-Komponente, Feld `data`) und mit der Datei vergleichen. Ein Push ohne Fehlermeldung und ein leerer Topic checker beweisen nicht, dass das Topic fragt.
 - Endet ein Topic im Test ohne die erwartete Frage: den zuletzt ausgeführten Knoten finden, bei Bedarf vorübergehend Meldungen mit Knotennamen und Werten einbauen und vor dem finalen Test wieder entfernen.
+
+## Bekannte Fehlerbilder und ihre Ursache
+
+| Meldung oder Beobachtung | Ursache | Abhilfe |
+|---|---|---|
+| Flow lässt sich nicht einschalten, `TemplateValidationError` | `runAfter` zeigt über eine `If`-Grenze, oder eine Formel hat eine Klammer zu viel | `runAfter` nur innerhalb derselben Ebene; Formel prüfen; neu pushen, zurücklesen, einschalten |
+| `DefinitionRequestMissingFields`, Flow bleibt aus | Trigger- oder Antwortschema nicht im nativen Format | Schema genau wie in den Formathinweisen und im Rückruf-Beispiel |
+| Topic checker: fehlende Eingaben, `InvalidBindingInvokeAction` | Topic bindet fachliche Namen statt `text`, `text_1` … | `input.binding` mit Trigger-Schlüsseln, `output.binding` mit Antwort-Schlüsseln |
+| Topic endet sofort („Completed“), keine Frage nach dem Prüfer; der Dispatcher meldet trotzdem Erfolg | ein Knoten vor der Frage bricht ab (z. B. leere Formel nach dem Import) oder das Routing landet nicht im Topic | importierte Bot-Komponente zurücklesen, Bedingungen und Werte vergleichen, notfalls vorübergehende Diagnose-Nachrichten |
+| Bedingung wurde zu `IsBlank()` ohne Argument | `IsBlank(Trim(…))` übersteht den Import nicht | `Len(Trim(Coalesce(…, ""))) = 0` |
+| Nachricht zeigt `="…" & …` wörtlich | Nachricht als Formel geschrieben | Text mit `{Topic.x}`-Platzhaltern |
+| „Nein“ startet trotzdem die Freigabe | `BooleanPrebuiltEntity` erkennt deutsches „Nein“ nicht zuverlässig | Antwort als Text, Trim/Lower, ausdrücklich auf „ja“ und „nein“ verzweigen |
+| Testchat: `ToolIdentifierConflict` | zwei Tools zeigen auf gleichnamige Flows oder ein alter Wrapper ist noch da | alten Wrapper löschen, Namen eindeutig mit Zusatz <Vorname> |
+| Status zeigt `null`-Fehler vor der Entscheidung | Dataverse liefert leere Spalten als `null` | alle Ausgaben mit `coalesce(..., '')` |
+| Push meldet Erfolg, Flow verhält sich wie vorher | Definition wurde nicht übernommen | `clientdata` zurücklesen; wenn alt: neue UUID, alte Version wie unter „Grenzen“ entfernen |
+| Neue Flows nur in der Default Solution | push ordnet nicht der Solution zu | `pac solution add-solution-component` mit Komponententyp 29 |
+
+## Abnahme, bevor du dich meldest
+
+Prüfe selbst und schreibe das Ergebnis in `UE16-README.md`:
+
+1. Beide neuen Flows: `statecode` 1, `statuscode` 2, `clientdata` gleich der lokalen Datei, Mitglied meiner Solution.
+2. Keine ersetzten eigenen Flow-Versionen mehr vorhanden, oder du nennst sie mit ID.
+3. Genau zwei neue Tool-Wrapper mit Zusatz <Vorname>, `flowId` = aktive Flow-ID; kein doppelter Wrapper.
+4. Beide Topics zurückgelesen: Frage nach Prüfer, Ja/Nein als Text, Flow-Aufruf mit `text`-Schlüsseln, Erfolgsnachricht mit Zeilen-ID, Status mit fünf Werten.
+5. Instructions enthalten die Routing-Zeile mit nativen Topic-Verweisen.
+6. Was ich noch tun muss: Copilot Studio mit F5 neu laden, Tools und Topic checker ansehen, Testchat, Publish.
 
 ## Abgabe
 
