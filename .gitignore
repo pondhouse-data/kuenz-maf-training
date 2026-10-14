@@ -2,3 +2,5 @@
 **/.env
 **/__pycache__/
 **/.pytest_cache/
+# Ü16: geklonter Copilot-Studio-Agent (pac copilot clone), nicht ins Repository
+ue16/

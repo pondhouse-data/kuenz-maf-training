@@ -5,9 +5,17 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/azure-cli:1.3.0": {},
-    "ghcr.io/devcontainers/features/sshd:1": {}
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "10.0",
+      "aspNetCoreRuntimeVersions": "10.0"
+    }
   },
   "remoteUser": "vscode",
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.dotnet/tools"
+  },
+  "postCreateCommand": "dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version 2.13.1",
   "hostRequirements": {
     "cpus": 2,
     "memory": "8gb",
