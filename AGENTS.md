@@ -6,7 +6,7 @@ aus. Den Code schreiben sie mit deiner Hilfe selbst.
 
 ## Aufbau
 
-- `README.md` und `anleitung/` beschreiben die Schritte Ü8 bis Ü13.
+- `README.md` und `anleitung/` beschreiben die Schritte Ü8 bis Ü13 und den Copilot-Auftrag für Ü16 (`anleitung/16-freigabe-copilot.md`).
 - `daten/` enthält synthetische Fachdaten. Teilnehmer kopieren den Ordner in ihr Projekt.
 - Das Projekt liegt in `pruefagent/src/agent-framework-agent-basic-responses/` (`main.py`, `pyproject.toml`, `.env`).
 

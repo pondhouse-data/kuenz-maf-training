@@ -13,6 +13,7 @@ Am Ende stellst du dasselbe Projekt in Microsoft Foundry bereit.
 | Ü11 B · [Prüfworkflow](anleitung/05-workflow.md) | Extrahieren, Regeln vergleichen, Ergebnis ausgeben | 2 |
 | Ü12 · [Ein Mensch entscheidet](anleitung/06-hitl.md) | Optional: menschliche Entscheidung je Klärungspunkt, im Terminal | 3 |
 | Ü13 · [Bereitstellen](anleitung/07-hosting.md) | Das Projekt über VS Code in Foundry bereitstellen | 3 |
+| Ü16 · [Freigabe mit GitHub Copilot](anleitung/16-freigabe-copilot.md) | Auftrag an Copilot: zwei Agent Flows und zwei Topics im geklonten Dispatcher (`ue16/`) | 3 |
 
 ## Umgebung öffnen
 
