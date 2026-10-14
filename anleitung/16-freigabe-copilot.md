@@ -13,7 +13,7 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 
 ## Grenzen
 
-- Lies `AGENTS.md` und diesen Auftrag im Repo-Wurzelverzeichnis. Schreibe und lies Dateien sonst nur im Workspace aus meiner Nachricht. Anleitungen deines eigenen Agent-Clients darfst du lesen; andere Trainings-, Lösungs- oder Nachweisdateien sind keine Quelle. Kein Git-Commit, kein Git-Push. `pac copilot pack` gehört nicht zu diesem Weg; Transport ist `pac copilot push --project-dir <Workspace>`.
+- Lies `AGENTS.md` und diesen Auftrag im Repo-Wurzelverzeichnis. Schreibe und lies Dateien sonst nur im Workspace aus meiner Nachricht. Anleitungen deines eigenen Agent-Clients darfst du lesen. Lesend erlaubt sind außerdem die lokalen Diagnose-Logs, die deine eigenen `pac`-Aufrufe in ihrer Ausgabe nennen: nur den Abschnitt zu deinem Aufruf, keine Tokens oder fremden Sitzungen ausgeben. Andere Trainings-, Lösungs- oder Nachweisdateien sind keine Quelle. Kein Git-Commit, kein Git-Push. `pac copilot pack` gehört nicht zu diesem Weg; Transport ist `pac copilot push --project-dir <Workspace>`.
 - In Dev nur meinen eigenen Agenten (Schemaname aus meiner Nachricht) pushen und pullen. Per Dataverse-Web-API darfst du lesen: eigene Objekte dieses Agenten, meine Verbindungsreferenzen und die Metadaten der Tabelle `kt_freigabe`. Token intern über `az account get-access-token --resource https://kuenztraining2026.crm4.dynamics.com`; Token nie ausgeben oder speichern.
 - Ändern darfst du nur: deine neuen Flows aktivieren (statecode 1, statuscode 2), ihre Fehlermeldungen lesen und sie meiner Solution hinzufügen (`pac solution add-solution-component`, Komponententyp 29). Hast du wegen einer nicht übernommenen Definition einen Flow mit neuer UUID ersetzt, darfst du die ersetzte, **von dir in diesem Auftrag erzeugte** Version deaktivieren und löschen, sobald die neue zurückgelesen und aktiv ist; vorher prüfen, dass die UUID nicht schon beim Klonen da war. Ihren alten Wrapper entfernst du ebenfalls. Keine Verbindungen anlegen oder ändern, keine fremden Objekte, keine Zeilen direkt schreiben, nichts in Foundry.
 - Der bestehende Flow „Rückruf anlegen“ und seine Tool-Registrierung bleiben unverändert. Er liegt im Clone unter `workflows/` und `actions/` und ist dein Formatbeispiel für einen nativen Agent Flow: `workflow.json`, `metadata.yml`, TaskDialog-Wrapper, `host.apiId`/`operationId`/`connectionName`, Response-Schema.
@@ -41,7 +41,7 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 - Leere Pflichteingaben: sofort „Respond to the agent“ mit status `Bindung abgewiesen`, approval_row_id leer.
 - Genau eine Zeile in **Freigaben** anlegen (Dataverse-Referenz): alle Bindungsfelder, Klärungspunkte, `kt_technical_status` = `awaiting_human`, `kt_entscheidung` = angefragt. Scheitert das: status `Freigabe nicht angelegt`, keine Freigabe.
 - SOFORT danach „Respond to the agent“ mit den Textausgaben `status` = `Freigabe angefragt` und `approval_row_id` = Primär-ID der Zeile. Erst danach die Freigabe starten. Die Antwort an den Agenten darf nie auf den Menschen warten.
-- Klassische Freigabe „Start and wait for an approval“ (Approvals-Referenz): Approve/Reject – First to respond, an `pruefer_email`, Titel mit review_id und run_id, Details mit den Klärungspunkten, E-Mail-Benachrichtigung aus. Kein Multistage, kein Human-review-Connector. Ausgang `outcome`; Kommentar, Prüfer und Zeitpunkt aus `responses[0].comments`, `responses[0].responder.email`, `responses[0].responseDate` (auf Microsoft Learn prüfen).
+- Klassische Freigabe „Start and wait for an approval“ (Approvals-Referenz): Approve/Reject – First to respond, an `pruefer_email`, Details mit den Klärungspunkten, E-Mail-Benachrichtigung aus. Der Titel enthält die **aufgelösten** Werte von review_id und run_id: schreibe einen ganzen Ausdruck wie `@concat('Klärungspunkte ', triggerBody()?['text'], ' / ', triggerBody()?['text_1'])` oder eine Interpolation mit `@{…}`. Ein `@triggerBody()` mitten in normalem Text bleibt wörtlicher Text und erscheint so in Teams. Kein Multistage, kein Human-review-Connector. Ausgang `outcome`; Kommentar, Prüfer und Zeitpunkt aus `responses[0].comments`, `responses[0].responder.email`, `responses[0].responseDate` (auf Microsoft Learn prüfen).
 - Kommentar leer oder nur Leerzeichen: nur `kt_technical_status` = `human_validation_failed`, Entscheidung bleibt angefragt. Sonst genau diese Zeile aktualisieren: Entscheidung freigegeben/abgelehnt, Kommentar unverändert, Prüfer, Zeitpunkt, `kt_technical_status` = `human_decided`. Technische Fehler nach der Antwort: `technical_failed` an derselben Zeile, nie eine Genehmigung vortäuschen.
 
 ## 3. Agent Flow „Freigabestatus abrufen <Vorname>“
@@ -82,6 +82,7 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 - `runAfter` nur auf Aktionen derselben Ebene; Aktionen in einem `If`-Zweig hängen nicht per `runAfter` an Aktionen außerhalb.
 
 **Topics und Tools (`*.mcs.yml`)**
+- Neue Dateinamen und die daraus abgeleiteten Schemanamen nur mit ASCII-Buchstaben, Ziffern und Unterstrichen, beginnend mit einem Buchstaben: `Klaerungspunktefreigeben<Vorname>.mcs.yml`, `KlaerungspunkteFreigeben.mcs.yml`. Umlaute nur im Anzeigenamen (`mcs.metadata.componentName`, z. B. „Klärungspunkte freigeben <Vorname>“). Sonst lehnt push mit `ExportKeyAttributeNotBeginWithLetterOrNonAlphaNumericCharacters` ab.
 - Übernimm die YAML-Struktur der vorhandenen Prüf-Topics. Power-Fx-Werte (`value: =…`, `condition: =…`) stehen vollständig auf einer Zeile, bei Sonderzeichen in Anführungszeichen. Keine gefalteten Blöcke (`>-`, `|`) für Formeln.
 - Nachrichten mit Werten als Text mit Platzhaltern schreiben, z. B. `activity: "Freigabe: {Topic.approvalStatus}. Zeilen-ID: {Topic.approvalRowId}"`, nicht als `="…" & …`-Formel.
 - Leerprüfungen als `Len(Trim(Coalesce(Topic.x, ""))) = 0`, nicht `IsBlank(Trim(…))`.
@@ -92,6 +93,7 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 **Nach jedem Push zurücklesen**
 - Beide Flows: `statecode` 1 und `statuscode` 2, `clientdata` entspricht der lokalen Datei, beide in meiner Solution (Komponententyp 29).
 - Beide Topics: die importierten Bedingungen und Werte zurücklesen (Bot-Komponente, Feld `data`) und mit der Datei vergleichen. Ein Push ohne Fehlermeldung und ein leerer Topic checker beweisen nicht, dass das Topic fragt.
+- Musst du zum Eingrenzen eines Push-Fehlers Dateien vorübergehend herausnehmen: vorher im Workspace sichern und danach vollständig wiederherstellen. Einträge in `connectionreferences.mcs.yml` immer als ganzen Listeneintrag (logischer Name **und** `connectorId`) entfernen oder zurücksetzen, nie einzelne Zeilen; vor dem nächsten Push mit dem Ausgangsstand vergleichen.
 - Endet ein Topic im Test ohne die erwartete Frage: den zuletzt ausgeführten Knoten finden, bei Bedarf vorübergehend Meldungen mit Knotennamen und Werten einbauen und vor dem finalen Test wieder entfernen.
 
 ## Bekannte Fehlerbilder und ihre Ursache
@@ -109,6 +111,10 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 | Status zeigt `null`-Fehler vor der Entscheidung | Dataverse liefert leere Spalten als `null` | alle Ausgaben mit `coalesce(..., '')` |
 | Push meldet Erfolg, Flow verhält sich wie vorher | Definition wurde nicht übernommen | `clientdata` zurücklesen; wenn alt: neue UUID, alte Version wie unter „Grenzen“ entfernen |
 | Neue Flows nur in der Default Solution | push ordnet nicht der Solution zu | `pac solution add-solution-component` mit Komponententyp 29 |
+| push: `DataverseBadRequestException` mit Verweis auf ein Log | Ursache steht nur im pac-Diagnose-Log | den genannten Log-Abschnitt deines Aufrufs lesen |
+| push: `ExportKeyAttributeNotBeginWithLetterOrNonAlphaNumericCharacters` | Umlaut oder Sonderzeichen in einem neuen Datei- bzw. Schemanamen | ASCII-Namen (`ae` statt `ä`), Anzeigename bleibt deutsch |
+| Freigabe in Teams zeigt `@triggerBody()…` im Titel | Ausdruck mitten im Text statt ganzem Ausdruck | `@concat(…)` oder `@{…}` |
+| Nach F5 fehlen die neuen Tools | push ist (teilweise) gescheitert oder eine Referenzdatei ist beschädigt | Push-Ausgabe lesen, `connectionreferences.mcs.yml` mit Ausgangsstand vergleichen |
 
 ## Abnahme, bevor du dich meldest
 
