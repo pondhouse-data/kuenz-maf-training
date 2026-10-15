@@ -51,8 +51,8 @@ Im Codespace ist die Microsoft-Erweiterung **Copilot Studio** (`ms-CopilotStudio
     ```
 
     Sonst nichts in `.mcs/` ändern. Danach erneut lesen: Der unveränderte Agent hat **0 Fehler**. Bleiben Fehler in den Prüf-Topics, ändere diese Topics trotzdem nicht. Bitte mich um **Developer: Reload Window** und lies erneut. Bleiben sie dann noch, nenne mir die Meldungen wörtlich: Die Vorabprüfung ist dann nicht belastbar, und du sagst das vor jedem Push.
-3. **Vor jedem `pac copilot push`:** die Meldungen aller neuen und geänderten Topics und Wrapper lesen, Fehler beheben, erneut lesen, bis **0 Fehler** im ganzen Agenten. Ein leerer Bereich Problems zählt nur, wenn Punkt 1 gezeigt hat, dass das Prüfprogramm läuft. Neue Dateien prüft es eventuell erst, wenn sie im Editor offen sind; dann bitte mich, sie zu öffnen.
-4. **Nach jedem Push:** prüfen, ob `operations` beim HTTP-Connector in `.mcs/botdefinition.json` noch steht. `pac` kann die Datei neu schreiben; dann Punkt 2 wiederholen.
+3. **Vor jedem `pac copilot push`:** die Meldungen aller neuen und geänderten Topics und Wrapper lesen, Fehler beheben, erneut lesen, bis **0 Fehler** im ganzen Agenten. Ein leerer Bereich Problems zählt nur, wenn Punkt 1 gezeigt hat, dass das Prüfprogramm läuft. Neue Dateien prüft es eventuell erst, wenn sie im Editor offen sind; dann bitte mich, sie zu öffnen. **Einzige Ausnahme vor dem ersten Push deiner neuen Flows:** Meldungen, dass eine neue Flow-ID nicht gefunden wird, und ihre direkten Folgefehler (Flow-Ausgabe ohne Typ, `Unknown`). Die Flows entstehen erst durch den Push; das Prüfprogramm kennt nur Flows aus `.mcs/botdefinition.json`. Diese Meldungen blockieren den Push nicht; deshalb nicht warten und mich nicht um Neuladen bitten. Alle anderen Meldungen müssen 0 sein.
+4. **Nach jedem Push:** zurücklesen und aktivieren wie unten beschrieben, dann `pac copilot pull --project-dir <Workspace>`. Das aktualisiert den Sync-Stand in `.mcs/`, sodass das Prüfprogramm die neuen Flows kennt. Danach prüfen, ob `operations` beim HTTP-Connector in `.mcs/botdefinition.json` noch steht (sonst Punkt 2 wiederholen), und die Meldungen erneut lesen: Jetzt gilt **0 Fehler ohne Ausnahme**. Sonst beheben und erneut pushen.
 
 Der Topic checker in Copilot Studio bleibt meine Abnahme nach F5. Die Vorabprüfung soll nur verhindern, dass ich dir seine Fehler zurückgeben muss.
 
@@ -142,6 +142,7 @@ Der Topic checker in Copilot Studio bleibt meine Abnahme nach F5. Die Vorabprüf
 | Topic checker: `Input variable '…' is of incorrect type: Unspecified` | Folgefehler: die gebundene Topic-Variable stammt aus einer fehlerhaften Formel | zuerst die Formel dieser Variable reparieren; nicht den `text_…`-Schlüssel umbenennen und den Flow nicht neu anlegen |
 | Problems: viele Fehler in den unveränderten Topics „Prüfauftrag prüfen“ und „Prüfstatus abrufen“ (HTTP-Antwort, Globals ohne Typ) | die Beschreibung des HTTP-Connectors fehlt in `.mcs/botdefinition.json`, z. B. frisch nach Clone oder Push | `operations` wie in Abschnitt 0 Punkt 2 ergänzen; die Prüf-Topics nicht ändern |
 | push meldet „N change(s) pushed“, obwohl du nur `.mcs/botdefinition.json` ergänzt hast | pac zählt alle vorhandenen Flows mit, auch unveränderte; die Connector-Beschreibung wird nicht übertragen | nichts tun; geprüft mit pac 2.13.1: keine Änderung in Dataverse |
+| Problems: neue Flow-ID „not found“, dazu Flow-Ausgabe ohne Typ, vor dem ersten Push | die neuen Flows existieren erst nach dem Push | pushen; danach `pac copilot pull`, `operations` prüfen, erneut lesen (Abschnitt 0 Punkt 3 und 4) |
 | Problems bleibt für alle Dateien leer | Prüfprogramm noch nicht gestartet oder Datei nicht geöffnet | mich bitten, ein Topic zu öffnen oder **Developer: Reload Window** auszuführen; leer zählt nicht als 0 Fehler |
 | Bedingung wurde zu `IsBlank()` ohne Argument | `IsBlank(Trim(…))` übersteht den Import nicht | `Len(Trim(Coalesce(…, ""))) = 0` |
 | Nachricht zeigt `="…" & …` wörtlich | Nachricht als Formel geschrieben | Text mit `{Topic.x}`-Platzhaltern |
@@ -164,7 +165,7 @@ Prüfe selbst und schreibe das Ergebnis in `UE16-README.md`:
 3. Genau zwei neue Tool-Wrapper mit Zusatz <Vorname>, `flowId` = aktive Flow-ID; kein doppelter Wrapper.
 4. Beide Topics zurückgelesen: Frage nach Prüfer, Ja/Nein als Text, Flow-Aufruf mit `text`-Schlüsseln, Erfolgsnachricht mit Zeilen-ID, Status mit fünf Werten.
 5. Instructions enthalten die Routing-Zeile mit nativen Topic-Verweisen.
-6. Prüfprogramm der Erweiterung vor dem letzten Push: Fehlerzahl vor und nach deinen Korrekturen, am Ende 0 im ganzen Agenten; oder ausdrücklich, warum die Vorabprüfung nicht belastbar war.
+6. Prüfprogramm der Erweiterung: Fehlerzahl vor und nach deinen Korrekturen; nach dem letzten Push und `pac copilot pull` 0 im ganzen Agenten; oder ausdrücklich, warum die Vorabprüfung nicht belastbar war.
 7. Was ich noch tun muss: Copilot Studio mit F5 neu laden, Tools und Topic checker ansehen, Testchat, Publish.
 
 ## Abgabe
