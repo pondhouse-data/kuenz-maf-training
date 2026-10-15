@@ -6,6 +6,10 @@
   "features": {
     "ghcr.io/devcontainers/features/azure-cli:1.3.0": {},
     "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22",
+      "installYarnUsingApt": false
+    },
     "ghcr.io/devcontainers/features/dotnet:2": {
       "version": "10.0",
       "aspNetCoreRuntimeVersions": "10.0,8.0"
@@ -28,7 +32,8 @@
         "GitHub.copilot",
         "GitHub.copilot-chat",
         "ms-python.debugpy",
-        "ms-windows-ai-studio.windows-ai-studio"
+        "ms-windows-ai-studio.windows-ai-studio",
+        "ms-CopilotStudio.vscode-copilotstudio@1.9.16"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",

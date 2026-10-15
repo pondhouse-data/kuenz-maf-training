@@ -23,4 +23,5 @@ aus. Den Code schreiben sie mit deiner Hilfe selbst.
 - Transport nach Copilot Studio ist `pac copilot push --project-dir <Workspace>`. `pac copilot pack` und `pac solution import` gehören nicht dazu.
 - Der vorhandene Flow „Rückruf anlegen“ unter `workflows/` und `actions/` ist das Formatbeispiel. Ihn und seine Registrierung nicht ändern.
 - In der Dev-Umgebung nur den eigenen Agenten pushen und nur eigene, gerade erzeugte Flows aktivieren oder zur eigenen Solution hinzufügen. Keine Verbindungen anlegen oder ändern, nichts in Foundry ändern, keine Tokens ausgeben.
+- Vor jedem Push die Meldungen des Prüfprogramms der Erweiterung **Copilot Studio** (`ms-CopilotStudio.vscode-copilotstudio`) unter **Problems** lesen: 0 Fehler. Dafür zuerst die Beschreibung des HTTP-Connectors in `.mcs/botdefinition.json` ergänzen, genau wie im Ü16-Auftrag, Abschnitt 0.
 - Der Auftrag kommt aus dem Prompt auf dem Ü16-Blatt; Fehlermeldungen aus Topic checker und Testchat gibt der Teilnehmer wörtlich zurück.

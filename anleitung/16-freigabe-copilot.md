@@ -24,6 +24,38 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 - `connectionreferences.mcs.yml`. Ermittle die logischen Namen meiner beiden neuen Referenzen „Freigabe Dataverse <Vorname>“ und „Freigabe Approvals <Vorname>“ per Web API (Tabelle `connectionreferences`, Feld `connectionreferencedisplayname`; meist `kt_FreigabeDataverse<Vorname>` und `kt_FreigabeApprovals<Vorname>`) und ergänze sie dort im vorhandenen Format, falls sie fehlen. Connector-IDs: `/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps` und `/providers/Microsoft.PowerApps/apis/shared_approvals`. Bestehende Einträge nicht ändern.
 - Die Tabelle **Freigaben**: logischer Name `kt_freigabe`, EntitySet `kt_freigaben`, Primär-ID `kt_freigabeid`. Spalten per Metadaten prüfen: `kt_review_id`, `kt_run_id`, `kt_response_id`, `kt_requester_id`, `kt_agent_name`, `kt_agent_version`, `kt_technical_status`, `kt_klaerungspunkte`, `kt_entscheidung` (Choice: angefragt 582100000, freigegeben 582100001, abgelehnt 582100002), `kt_kommentar`, `kt_pruefer`, `kt_zeitpunkt`.
 
+## 0. Prüfprogramm der Copilot-Studio-Erweiterung (vor der ersten Änderung)
+
+Im Codespace ist die Microsoft-Erweiterung **Copilot Studio** (`ms-CopilotStudio.vscode-copilotstudio`) installiert. Ihr Prüfprogramm (Language Server) prüft alle `*.mcs.yml` des geklonten Agenten so wie der Topic checker in Copilot Studio: Power-Fx-Formeln, Variablentypen, Flow-Ein- und -Ausgaben. Die Meldungen stehen in VS Code unter **Problems**. Du liest sie mit deinem Werkzeug für Probleme und Fehler (`problems` bzw. `get_errors`) für die Dateien unter `topics/` und `actions/` meines Workspace. Eine Anmeldung in der Erweiterung ist nicht nötig; Klonen und Push bleiben bei `pac`. Kein anderes Prüfwerkzeug und kein eigenes Prüfskript.
+
+1. **Läuft das Prüfprogramm?** Lies die Meldungen zu den vorhandenen Topics „Prüfauftrag prüfen“ und „Prüfstatus abrufen“. Direkt nach dem Klonen erscheinen dort Fehler zur HTTP-Antwort und zu den Globals. Das zeigt, dass das Prüfprogramm läuft; diese Fehler sind nicht echt (siehe Punkt 2). Kommt für keine Datei eine Meldung, bitte mich, ein Topic im Editor zu öffnen oder **Developer: Reload Window** auszuführen, und lies erneut.
+2. **Beschreibung des HTTP-Connectors nachladen.** Das Prüfprogramm kennt die Typen nur aus `.mcs/botdefinition.json`. `pac copilot clone` legt dort für den HTTP-Connector nur die ID ab, ohne Beschreibung seiner Aktion `InvokeHttp`. Deshalb kennt das Prüfprogramm die HTTP-Antwort der Prüf-Topics nicht und meldet Folgefehler. Ergänze in `.mcs/botdefinition.json` im Eintrag unter `connectorDefinitions` mit `"connectorId": "/providers/Microsoft.PowerApps/apis/shared_webcontents"` genau dieses Feld (aus der Swagger-Beschreibung des HTTP-Connectors; Antwort ohne festes Schema, daher `Any`):
+
+    ```json
+    "operations": [
+      {
+        "$kind": "ConnectorOperation",
+        "operationId": "InvokeHttp",
+        "inputType": {
+          "$kind": "Record",
+          "properties": {
+            "method": { "$kind": "PropertyInfo", "type": { "$kind": "String" } },
+            "url": { "$kind": "PropertyInfo", "type": { "$kind": "String" } },
+            "headers": { "$kind": "PropertyInfo", "type": { "$kind": "Any" } },
+            "body": { "$kind": "PropertyInfo", "type": { "$kind": "String" } }
+          }
+        },
+        "outputType": { "$kind": "Any" }
+      }
+    ]
+    ```
+
+    Sonst nichts in `.mcs/` ändern. Danach erneut lesen: Der unveränderte Agent hat **0 Fehler**. Bleiben Fehler in den Prüf-Topics, ändere diese Topics trotzdem nicht. Bitte mich um **Developer: Reload Window** und lies erneut. Bleiben sie dann noch, nenne mir die Meldungen wörtlich: Die Vorabprüfung ist dann nicht belastbar, und du sagst das vor jedem Push.
+3. **Vor jedem `pac copilot push`:** die Meldungen aller neuen und geänderten Topics und Wrapper lesen, Fehler beheben, erneut lesen, bis **0 Fehler** im ganzen Agenten. Ein leerer Bereich Problems zählt nur, wenn Punkt 1 gezeigt hat, dass das Prüfprogramm läuft. Neue Dateien prüft es eventuell erst, wenn sie im Editor offen sind; dann bitte mich, sie zu öffnen.
+4. **Nach jedem Push:** prüfen, ob `operations` beim HTTP-Connector in `.mcs/botdefinition.json` noch steht. `pac` kann die Datei neu schreiben; dann Punkt 2 wiederholen.
+
+Der Topic checker in Copilot Studio bleibt meine Abnahme nach F5. Die Vorabprüfung soll nur verhindern, dass ich dir seine Fehler zurückgeben muss.
+
 ## 1. Topic „Klärungspunkte freigeben“
 
 - Nur für die ausdrückliche Bitte, die Klärungspunkte des gespeicherten Laufs zur menschlichen Freigabe zu senden.
@@ -108,6 +140,8 @@ Die Werte stehen in meiner Chat-Nachricht: Workspace (mit `pac copilot clone` ge
 | Topic endet sofort („Completed“), keine Frage nach dem Prüfer; der Dispatcher meldet trotzdem Erfolg | ein Knoten vor der Frage bricht ab (z. B. leere Formel nach dem Import) oder das Routing landet nicht im Topic | importierte Bot-Komponente zurücklesen, Bedingungen und Werte vergleichen, notfalls vorübergehende Diagnose-Nachrichten |
 | Topic checker: `Identifier not recognized in expression`, dazu mehrere `There is an error: 'PowerFxError'` in derselben Formel | ein `As`-Alias wird außerhalb seiner Funktion verwendet (z. B. aus `Filter` im zweiten Argument von `Concat`) | in der äußeren Formel `ThisRecord` statt des Alias, siehe Formathinweis Datensatz-Scope |
 | Topic checker: `Input variable '…' is of incorrect type: Unspecified` | Folgefehler: die gebundene Topic-Variable stammt aus einer fehlerhaften Formel | zuerst die Formel dieser Variable reparieren; nicht den `text_…`-Schlüssel umbenennen und den Flow nicht neu anlegen |
+| Problems: viele Fehler in den unveränderten Topics „Prüfauftrag prüfen“ und „Prüfstatus abrufen“ (HTTP-Antwort, Globals ohne Typ) | die Beschreibung des HTTP-Connectors fehlt in `.mcs/botdefinition.json`, z. B. frisch nach Clone oder Push | `operations` wie in Abschnitt 0 Punkt 2 ergänzen; die Prüf-Topics nicht ändern |
+| Problems bleibt für alle Dateien leer | Prüfprogramm noch nicht gestartet oder Datei nicht geöffnet | mich bitten, ein Topic zu öffnen oder **Developer: Reload Window** auszuführen; leer zählt nicht als 0 Fehler |
 | Bedingung wurde zu `IsBlank()` ohne Argument | `IsBlank(Trim(…))` übersteht den Import nicht | `Len(Trim(Coalesce(…, ""))) = 0` |
 | Nachricht zeigt `="…" & …` wörtlich | Nachricht als Formel geschrieben | Text mit `{Topic.x}`-Platzhaltern |
 | „Nein“ startet trotzdem die Freigabe | `BooleanPrebuiltEntity` erkennt deutsches „Nein“ nicht zuverlässig | Antwort als Text, Trim/Lower, ausdrücklich auf „ja“ und „nein“ verzweigen |
@@ -129,7 +163,8 @@ Prüfe selbst und schreibe das Ergebnis in `UE16-README.md`:
 3. Genau zwei neue Tool-Wrapper mit Zusatz <Vorname>, `flowId` = aktive Flow-ID; kein doppelter Wrapper.
 4. Beide Topics zurückgelesen: Frage nach Prüfer, Ja/Nein als Text, Flow-Aufruf mit `text`-Schlüsseln, Erfolgsnachricht mit Zeilen-ID, Status mit fünf Werten.
 5. Instructions enthalten die Routing-Zeile mit nativen Topic-Verweisen.
-6. Was ich noch tun muss: Copilot Studio mit F5 neu laden, Tools und Topic checker ansehen, Testchat, Publish.
+6. Prüfprogramm der Erweiterung vor dem letzten Push: Fehlerzahl vor und nach deinen Korrekturen, am Ende 0 im ganzen Agenten; oder ausdrücklich, warum die Vorabprüfung nicht belastbar war.
+7. Was ich noch tun muss: Copilot Studio mit F5 neu laden, Tools und Topic checker ansehen, Testchat, Publish.
 
 ## Abgabe
 
